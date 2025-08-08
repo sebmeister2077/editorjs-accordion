@@ -1,0 +1,17 @@
+.accordion-wrapper {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.accordion-wrapper [contenteditable] {
+    outline: none;
+    flex: 1;
+    padding: 10px;
+}
+
+.settings {
+    margin-left: auto;
+}

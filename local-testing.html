@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Test indent</title>
+        <script>
+            if (!globalThis.Cypress) {
+                window.editorVersion = '2.30'
+                document.writeln(
+                    `<script onload="window.dispatchEvent(new CustomEvent('loadded-editorjs-script'));" src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@${window.editorVersion}"><\/script>`,
+                )
+            } else {
+            }
+        </script>
+        <!-- <script
+            src="https://code.jquery.com/jquery-3.7.1.slim.min.js"
+            integrity="sha256-kmHvs0B+OpCW5GVHUNjv9rOmY0IvSIRcf7zGUDTDQM8="
+            crossorigin="anonymous"
+        ></script> -->
+        <script src="
+https://cdn.jsdelivr.net/npm/@editorjs/header@2.8.7/dist/header.umd.min.js
+"></script>
+        <script src="
+https://cdn.jsdelivr.net/npm/@editorjs/list@1.10.0/dist/list.umd.min.js
+"></script>
+        <script src="./dist/dev-build.js"></script>
+        <style>
+            /* .ce-block__content::before {
+                content: '';
+                width: 20px;
+                display: block;
+                height: 1.6em;
+                right: 100%;
+                top: 50%;
+                position: absolute;
+                transform: translate(0px, -50%);
+            } */
+        </style>
+    </head>
+    <body>
+        <div id="editor" style="background-color: antiquewhite"></div>
+        <script>
+            const dataLocation = 'editorjs-accordion-data'
+            let data = {}
+            try {
+                data = JSON.parse(localStorage.getItem(dataLocation))
+            } catch {}
+
+            const version = window.editorVersion
+            const AccordionBlock = self.AccordionBlock
+
+            const editor = new EditorJS({
+                holder: 'editor',
+                tools: {
+                    list: {
+                        class: self.List,
+                    },
+                    header: {
+                        class: self.Header,
+                    },
+                    accordion: {
+                        class: AccordionBlock,
+                    },
+                },
+                // readOnly: true,
+                onChange(api, changedBlocks) {
+                    console.log('🚀 ~ onChange ~ api:', changedBlocks)
+                    api.saver.save().then((data) => {
+                        localStorage.setItem(dataLocation, JSON.stringify(data))
+                    })
+                },
+                data,
+            })
+            window.editor = editor
+        </script>
+    </body>
+</html>
