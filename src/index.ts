@@ -100,9 +100,30 @@ export default class Accordion implements BlockTool {
     // removed(): void {
     //     console.log('Accordion block removed');
     // }
-    // moved?(event: MoveEvent): void {
-    //     throw new Error('Method not implemented.');
-    // }
+
+    public moved(event: MoveEvent): void {
+        this.renderAccordionBlocks()
+        this.drawAccordionBlocks();
+
+        const hasMovedDown = event.detail.fromIndex < event.detail.toIndex;
+        if (hasMovedDown) {
+            const prevBlock = this.block.holder.previousElementSibling;
+            if (prevBlock && prevBlock instanceof HTMLElement)
+                this.removeClassesFromBlock(prevBlock);
+        } else {
+            const siblings = Array.from(this.block.holder.parentElement?.children ?? []);
+            if (!siblings.length) return;
+            const currentIndex = siblings.indexOf(this.block.holder);
+            const siblingsAfterCurrent = siblings.slice(currentIndex + 1);
+            const haveToRemoveLastBlock = siblingsAfterCurrent.length > this.data.settings.graspedBlockCount;
+            if (!haveToRemoveLastBlock) return;
+
+            const lastBlock = siblingsAfterCurrent[this.data.settings.graspedBlockCount];
+            if (!(lastBlock instanceof HTMLElement)) return;
+            this.removeClassesFromBlock(lastBlock);
+        }
+
+    }
 
 
     public render() {
@@ -303,6 +324,13 @@ export default class Accordion implements BlockTool {
         } else {
             chevronIcon.classList.add(this.CSS.chevronIconRotated);
         }
+    }
+
+    private removeClassesFromBlock(block: HTMLElement) {
+        block.classList.remove(this.CSS.wrappedBlock);
+        block.classList.remove(this.CSS.wrappedBlockLast);
+        block.classList.remove(this.CSS.wrappedBlockClosed);
+        block.classList.remove(this.CSS.wrappedBlockOpened);
     }
 }
 function stopPropagation(event: Event) {

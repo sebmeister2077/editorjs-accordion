@@ -1,4 +1,4 @@
-import { BlockToolConstructorOptions } from '@editorjs/editorjs/types/tools';
+import { BlockToolConstructorOptions, MoveEvent } from '@editorjs/editorjs/types/tools';
 import './index.css';
 import { BlockToolData, type BlockTool } from '@editorjs/editorjs';
 type Data = BlockToolData<{
@@ -32,6 +32,7 @@ export default class Accordion implements BlockTool {
     private readonly;
     private _opened;
     constructor({ data, api, block, readOnly, config }: BlockToolConstructorOptions<Data, Config>);
+    moved(event: MoveEvent): void;
     render(): HTMLElement;
     rendered(): void;
     save(blockContent: HTMLElement): {
@@ -49,5 +50,6 @@ export default class Accordion implements BlockTool {
     private toggleAccordion;
     private drawAccordionBlocks;
     private rotateChevronIcon;
+    private removeClassesFromBlock;
 }
 export {};
