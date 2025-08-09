@@ -155,13 +155,7 @@
 }
 
 .accordion-wrapped-closed .ce-block__content {
-    min-height: 0;
-    transition: visibility 0.5s;
     visibility: hidden;
-    -webkit-transition: visibility 0.5s;
-    -moz-transition: visibility 0.5s;
-    -ms-transition: visibility 0.5s;
-    -o-transition: visibility 0.5s;
 }
 
 .accordion-wrapped-opened {
@@ -170,4 +164,15 @@
 
 .accordion-wrapped-opened .ce-block__content {
     visibility: visible;
+
+}
+
+.accordion-wrapped-closed .ce-block__content,
+.accordion-wrapped-opened .ce-block__content {
+    min-height: 0;
+    transition: visibility 0.5s;
+    -webkit-transition: visibility 0.5s;
+    -moz-transition: visibility 0.5s;
+    -ms-transition: visibility 0.5s;
+    -o-transition: visibility 0.5s;
 }
