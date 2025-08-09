@@ -14,4 +14,51 @@
 
 .settings {
     margin-left: auto;
+    position: relative;
+    width: 24px;
+    height: 24px;
+    padding: 6px;
+    cursor: pointer;
+    transition: transform .4s;
+    -webkit-transition: transform .4s;
+    -moz-transition: transform .4s;
+    -ms-transition: transform .4s;
+    -o-transition: transform .4s;
+}
+
+.settings:hover {
+    transform: rotate(0.2turn);
+    -webkit-transform: rotate(0.2turn);
+    -moz-transform: rotate(0.2turn);
+    -ms-transform: rotate(0.2turn);
+    -o-transform: rotate(0.2turn);
+}
+
+/* //relatuve to the settings button */
+.settings-popover {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+.settings-content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.save-settings {
+    align-self: flex-end;
+    padding: 5px 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
 }

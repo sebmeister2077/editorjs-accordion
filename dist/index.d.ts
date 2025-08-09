@@ -1,6 +1,6 @@
 import { BlockToolConstructorOptions } from '@editorjs/editorjs/types/tools';
 import './index.css';
-import { API, BlockAPI, BlockToolData, type BlockTool } from '@editorjs/editorjs';
+import { BlockToolData, type BlockTool } from '@editorjs/editorjs';
 type Data = BlockToolData<{
     settings: {
         graspedBlockCount: number;
@@ -19,12 +19,13 @@ export default class Accordion implements BlockTool {
         title: string;
         icon: string;
     };
-    wrapper: HTMLElement;
+    WRAPPER_ATTRIBUTE_NAME: string;
+    private wrapper;
     data: Data;
-    api: API;
-    block: BlockAPI;
-    config: Config;
-    readonly: boolean;
+    private api;
+    private block;
+    private config;
+    private readonly;
     constructor({ data, api, block, readOnly, config }: BlockToolConstructorOptions<Data, Config>);
     render(): HTMLElement;
     save(blockContent: HTMLElement): {
