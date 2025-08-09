@@ -4,10 +4,13 @@ import { BlockToolData, type BlockTool } from '@editorjs/editorjs';
 type Data = BlockToolData<{
     settings: {
         graspedBlockCount: number;
+        defaultExpanded?: boolean;
     };
     title: string;
 }>;
-type Config = {};
+type Config = {
+    defaultExpanded: boolean;
+};
 /**
  * Create a block for accordion, and it should contain  settings to select the number of following items to be accordioned.
  * in read only the accordion should be expanded by default (depends on settings).
@@ -28,11 +31,16 @@ export default class Accordion implements BlockTool {
     private readonly;
     constructor({ data, api, block, readOnly, config }: BlockToolConstructorOptions<Data, Config>);
     render(): HTMLElement;
+    rendered(): void;
     save(blockContent: HTMLElement): {
         settings: {
             graspedBlockCount: number;
+            defaultExpanded?: boolean;
         };
         title: string;
     };
+    private get EditorCSS();
+    private get CSS();
+    private renderAccordionBlocks;
 }
 export {};

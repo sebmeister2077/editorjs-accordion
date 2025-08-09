@@ -2,8 +2,26 @@
     display: flex;
     flex-direction: row;
     gap: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+    align-items: center;
+}
+
+.codex-editor__redactor:has(.accordion-wrapper:hover,
+    .accordion-wrapper:focus-within) {
+    --border-color: #ccc;
+}
+
+.ce-block__content:has(.accordion-wrapper) {
+    border: 1px solid var(--border-color, transparent);
+    border-radius: 15px 15px 0px 0px;
+    -webkit-border-radius: 15px 15px 0px 0px;
+    -moz-border-radius: 15px 15px 0px 0px;
+    -ms-border-radius: 15px 15px 0px 0px;
+    -o-border-radius: 15px 15px 0px 0px;
+    transition: border .3s;
+    -webkit-transition: border .3s;
+    -moz-transition: border .3s;
+    -ms-transition: border .3s;
+    -o-transition: border .3s;
 }
 
 .accordion-wrapper [contenteditable] {
@@ -12,7 +30,7 @@
     padding: 10px;
 }
 
-.settings {
+.accordion-settings {
     margin-left: auto;
     position: relative;
     width: 24px;
@@ -26,7 +44,7 @@
     -o-transition: transform .4s;
 }
 
-.settings:hover {
+.accordion-settings:hover {
     transform: rotate(0.2turn);
     -webkit-transform: rotate(0.2turn);
     -moz-transform: rotate(0.2turn);
@@ -40,11 +58,16 @@
     top: 100%;
     right: 0;
     background: white;
-    border: 1px solid #ccc;
+    border: 1px solid var(--border-color, transparent);
     border-radius: 5px;
     padding: 10px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     z-index: 1000;
+    transition: border .3s;
+    -webkit-transition: border .3s;
+    -moz-transition: border .3s;
+    -ms-transition: border .3s;
+    -o-transition: border .3s;
 }
 
 .settings-content {
@@ -61,4 +84,30 @@
     border: none;
     border-radius: 5px;
     cursor: pointer;
+}
+
+.accordion-wrapped .ce-block__content {
+    border-left: 1px solid var(--border-color, transparent);
+    border-right: 1px solid var(--border-color, transparent);
+    transition: border .3s;
+    -webkit-transition: border .3s;
+    -moz-transition: border .3s;
+    -ms-transition: border .3s;
+    -o-transition: border .3s;
+}
+
+.accordion-wrapped-last .ce-block__content {
+    transition: border .3s;
+    -webkit-transition: border .3s;
+    -moz-transition: border .3s;
+    -ms-transition: border .3s;
+    -o-transition: border .3s;
+    border-left: 1px solid var(--border-color, transparent);
+    border-right: 1px solid var(--border-color, transparent);
+    border-bottom: 1px solid var(--border-color, transparent);
+    border-radius: 0 0 15px 15px;
+    -webkit-border-radius: 0 0 15px 15px;
+    -moz-border-radius: 0 0 15px 15px;
+    -ms-border-radius: 0 0 15px 15px;
+    -o-border-radius: 0 0 15px 15px;
 }
