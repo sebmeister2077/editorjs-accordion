@@ -39,6 +39,7 @@ https://cdn.jsdelivr.net/npm/@editorjs/list@1.10.0/dist/list.umd.min.js
         </style>
     </head>
     <body>
+        <button id="toggle">Toggle readonly</button>
         <div id="editor" style="background-color: antiquewhite"></div>
         <script>
             const dataLocation = 'editorjs-accordion-data'
@@ -46,6 +47,7 @@ https://cdn.jsdelivr.net/npm/@editorjs/list@1.10.0/dist/list.umd.min.js
             try {
                 data = JSON.parse(localStorage.getItem(dataLocation))
             } catch {}
+            let readOnly = false
 
             const version = window.editorVersion
             const AccordionBlock = self.AccordionBlock
@@ -63,7 +65,7 @@ https://cdn.jsdelivr.net/npm/@editorjs/list@1.10.0/dist/list.umd.min.js
                         class: AccordionBlock,
                     },
                 },
-                readOnly: true,
+                readOnly,
                 onChange(api, changedBlocks) {
                     console.log('🚀 ~ onChange ~ api:', changedBlocks)
                     api.saver.save().then((data) => {
@@ -73,6 +75,13 @@ https://cdn.jsdelivr.net/npm/@editorjs/list@1.10.0/dist/list.umd.min.js
                 data,
             })
             window.editor = editor
+
+            editor.isReady.then(() => {
+                document.getElementById('toggle').addEventListener('click', () => {
+                    readOnly = !readOnly
+                    editor.readOnly.toggle()
+                })
+            })
         </script>
     </body>
 </html>
