@@ -10,7 +10,7 @@
     --border-color: #ccc;
 }
 
-.ce-block__content:has(.accordion-wrapper) {
+.ce-block__content:has(.accordion-wrapper:not([data-readonly])) {
     border: 1px solid var(--border-color, transparent);
     border-radius: 15px 15px 0px 0px;
     -webkit-border-radius: 15px 15px 0px 0px;
@@ -22,6 +22,10 @@
     -moz-transition: border .3s;
     -ms-transition: border .3s;
     -o-transition: border .3s;
+}
+
+.ce-block__content:has(.accordion-wrapper[data-readonly]) {
+    cursor: pointer
 }
 
 .accordion-wrapper [contenteditable] {
@@ -86,7 +90,35 @@
     cursor: pointer;
 }
 
-.accordion-wrapped .ce-block__content {
+.accordion-chevron-icon {
+    transition: transform .4s;
+    -webkit-transition: transform .4s;
+    -moz-transition: transform .4s;
+    -ms-transition: transform .4s;
+    -o-transition: transform .4s;
+}
+
+.accordion-chevron-icon-rotated {
+    transform: rotate(180deg);
+    -webkit-transform: rotate(180deg);
+    -moz-transform: rotate(180deg);
+    -ms-transform: rotate(180deg);
+    -o-transform: rotate(180deg);
+}
+
+.accordion-wrapped[data-readonly],
+.accordion-wrapped-last[data-readonly] {
+    display: grid;
+    /* grid-template-rows: 1fr; */
+    overflow: hidden;
+    transition: grid-template-rows .5s;
+    -webkit-transition: grid-template-rows .5s;
+    -moz-transition: grid-template-rows .5s;
+    -ms-transition: grid-template-rows .5s;
+    -o-transition: grid-template-rows .5s;
+}
+
+.accordion-wrapped:not([data-readonly]) .ce-block__content {
     border-left: 1px solid var(--border-color, transparent);
     border-right: 1px solid var(--border-color, transparent);
     transition: border .3s;
@@ -96,7 +128,7 @@
     -o-transition: border .3s;
 }
 
-.accordion-wrapped-last .ce-block__content {
+.accordion-wrapped-last:not([data-readonly]) .ce-block__content {
     transition: border .3s;
     -webkit-transition: border .3s;
     -moz-transition: border .3s;
@@ -110,4 +142,32 @@
     -moz-border-radius: 0 0 15px 15px;
     -ms-border-radius: 0 0 15px 15px;
     -o-border-radius: 0 0 15px 15px;
+}
+
+.accordion-wrapped .ce-block__content>*,
+.accordion-wrapped-last .ce-block__content>* {
+    padding-inline: 10px;
+}
+
+
+.accordion-wrapped-closed {
+    grid-template-rows: 0fr;
+}
+
+.accordion-wrapped-closed .ce-block__content {
+    min-height: 0;
+    transition: visibility 0.5s;
+    visibility: hidden;
+    -webkit-transition: visibility 0.5s;
+    -moz-transition: visibility 0.5s;
+    -ms-transition: visibility 0.5s;
+    -o-transition: visibility 0.5s;
+}
+
+.accordion-wrapped-opened {
+    grid-template-rows: 1fr;
+}
+
+.accordion-wrapped-opened .ce-block__content {
+    visibility: visible;
 }

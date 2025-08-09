@@ -22,6 +22,7 @@ export default class Accordion implements BlockTool {
         title: string;
         icon: string;
     };
+    static get isReadOnlySupported(): boolean;
     WRAPPER_ATTRIBUTE_NAME: string;
     private wrapper;
     data: Data;
@@ -29,6 +30,7 @@ export default class Accordion implements BlockTool {
     private block;
     private config;
     private readonly;
+    private _opened;
     constructor({ data, api, block, readOnly, config }: BlockToolConstructorOptions<Data, Config>);
     render(): HTMLElement;
     rendered(): void;
@@ -39,8 +41,13 @@ export default class Accordion implements BlockTool {
         };
         title: string;
     };
+    get opened(): boolean;
+    set opened(value: boolean);
     private get EditorCSS();
     private get CSS();
     private renderAccordionBlocks;
+    private toggleAccordion;
+    private drawAccordionBlocks;
+    private rotateChevronIcon;
 }
 export {};
