@@ -32,6 +32,7 @@ export default class Accordion implements BlockTool {
     private readonly;
     private _opened;
     constructor({ data, api, block, readOnly, config }: BlockToolConstructorOptions<Data, Config>);
+    removed(): void;
     moved(event: MoveEvent): void;
     render(): HTMLElement;
     rendered(): void;
@@ -46,6 +47,7 @@ export default class Accordion implements BlockTool {
     set opened(value: boolean);
     private get EditorCSS();
     private get CSS();
+    private getBlocks;
     private renderAccordionBlocks;
     private toggleAccordion;
     private drawAccordionBlocks;

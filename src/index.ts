@@ -47,7 +47,7 @@ export default class Accordion implements BlockTool {
         this.config = config || defaultConfig;
         const defaultData: Data = {
             settings: {
-                graspedBlockCount: 1,
+                graspedBlockCount: 3,
                 defaultExpanded: this.config.defaultExpanded,
             },
             title: '',
@@ -97,9 +97,18 @@ export default class Accordion implements BlockTool {
     // updated?(): void {
     //     console.log('Accordion block updated');
     // }
-    // removed(): void {
-    //     console.log('Accordion block removed');
-    // }
+    removed(): void {
+        const index = this.api.blocks.getBlockIndex(this.block.id);
+        const count = this.data.settings.graspedBlockCount;
+
+        const indexesToBeRemoved = new Array(count).fill(index + 1).map((_, i) => _ + i);
+        indexesToBeRemoved.forEach((i) => {
+            const block = this.api.blocks.getBlockByIndex(i);
+            if (!block) return;
+            this.removeClassesFromBlock(block.holder);
+        })
+
+    }
 
     public moved(event: MoveEvent): void {
         this.renderAccordionBlocks()
@@ -108,8 +117,8 @@ export default class Accordion implements BlockTool {
         const hasMovedDown = event.detail.fromIndex < event.detail.toIndex;
         if (hasMovedDown) {
             const prevBlock = this.block.holder.previousElementSibling;
-            if (prevBlock && prevBlock instanceof HTMLElement)
-                this.removeClassesFromBlock(prevBlock);
+            if (!(prevBlock instanceof HTMLElement)) return;
+            this.removeClassesFromBlock(prevBlock);
         } else {
             const siblings = Array.from(this.block.holder.parentElement?.children ?? []);
             if (!siblings.length) return;
@@ -133,7 +142,7 @@ export default class Accordion implements BlockTool {
         this.wrapper.classList.add(this.CSS.wrapper);
         const title = document.createElement("div");
         title.setAttribute('contenteditable', this.readonly ? 'false' : 'true');
-        title.innerText = this.data.title;
+        title.innerText = this.data.title ?? "";
         this.wrapper.appendChild(title);
         title.addEventListener('input', (event) => {
             if (!(event.target instanceof HTMLDivElement)) return;
@@ -244,14 +253,11 @@ export default class Accordion implements BlockTool {
         } as const
     }
 
-
-    private renderAccordionBlocks() {
-        this.block.holder.setAttribute(this.WRAPPER_ATTRIBUTE_NAME, this.data.settings.graspedBlockCount.toString());
-
+    private getBlocks() {
         const blocks: HTMLElement[] = [];
         const blockCount = this.data.settings.graspedBlockCount || 1;
 
-        if (!(this.block.holder.nextElementSibling instanceof HTMLElement)) return;
+        if (!(this.block.holder.nextElementSibling instanceof HTMLElement)) return [];
         let next = this.block.holder.nextElementSibling;
 
         for (let i = 0; i < blockCount; i++) {
@@ -262,6 +268,13 @@ export default class Accordion implements BlockTool {
             next = next.nextElementSibling;
 
         }
+        return blocks;
+    }
+
+    private renderAccordionBlocks() {
+        this.block.holder.setAttribute(this.WRAPPER_ATTRIBUTE_NAME, this.data.settings.graspedBlockCount.toString());
+        const blocks = this.getBlocks();
+
 
         blocks.forEach((block, index) => {
             const isLast = index === blocks.length - 1;
