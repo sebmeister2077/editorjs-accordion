@@ -128,6 +128,16 @@
     -o-transition: border .3s;
 }
 
+/* 
+Alternative to manually assigning classes would be to use
+ .ce-block:has(.accordion-wrapper[data-count=1]) + .ce-block, 
+ .ce-block:has(.accordion-wrapper[data-count=2]) + .ce-block, 
+ .ce-block:has(.accordion-wrapper[data-count=2]) + .ce-block +.ce-block,    
+ .ce-block:has(.accordion-wrapper[data-count=3]) + .ce-block ,    
+ .ce-block:has(.accordion-wrapper[data-count=3]) + .ce-block +.ce-block,    
+ .ce-block:has(.accordion-wrapper[data-count=3]) + .ce-block +.ce-block +.ce-block,    
+
+ */
 .accordion-wrapped-last:not([data-readonly]) .ce-block__content {
     transition: border .3s;
     -webkit-transition: border .3s;
@@ -146,7 +156,7 @@
 
 .accordion-wrapped .ce-block__content>*,
 .accordion-wrapped-last .ce-block__content>* {
-    padding-inline: 10px;
+    padding-inline: 80px;
 }
 
 

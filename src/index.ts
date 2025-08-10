@@ -1,7 +1,7 @@
 import { BlockToolConstructorOptions, MenuConfig, MoveEvent } from '@editorjs/editorjs/types/tools';
 import './index.css';
 import { API, BlockAPI, BlockToolConstructable, BlockToolData, ConversionConfig, PasteConfig, PasteEvent, SanitizerConfig, ToolboxConfig, ToolConfig, type BlockTool } from '@editorjs/editorjs';
-import { gearIcon } from './icons';
+import { accordionIcon, gearIcon } from './icons';
 import { IconChevronUp } from '@codexteam/icons';
 
 type Data = BlockToolData<{
@@ -21,14 +21,17 @@ type Config = {
  * styles need to be applied multi block
  */
 export default class Accordion implements BlockTool {
-    public static get toolbox() {
+    public static get toolbox(): ToolboxConfig {
         return {
             title: 'Accordion',
-            icon: /*html*/`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6zm0 4h18v2H3v-2zm0 4h18v2H3v-2zm0 4h18v2H3v-2z"/></svg>`,
+            icon: accordionIcon
         };
     }
     public static get isReadOnlySupported() {
         return true;
+    }
+    public static get isInline() {
+        return false;
     }
     public WRAPPER_ATTRIBUTE_NAME = 'data-accordion-wrapper';
     private wrapper: HTMLElement;
@@ -62,14 +65,11 @@ export default class Accordion implements BlockTool {
         this._opened = Boolean(this.data.settings.defaultExpanded ?? this.config.defaultExpanded);
         this.wrapper = document.createElement('div');
 
-        // if (!this.readonly)
-        //     this.removeClasses();
 
     }
     // toolbox?: ToolboxConfig | undefined;
     // pasteConfig?: PasteConfig | undefined;
     // conversionConfig?: ConversionConfig | undefined;
-    // isReadOnlySupported?: boolean | undefined;
     // isInline?: boolean | undefined;
     // title?: string | undefined;
     // prepare?(data: { toolName: string; config: ToolConfig; }): void | Promise<void> {
@@ -82,9 +82,16 @@ export default class Accordion implements BlockTool {
     // renderSettings?(): HTMLElement | MenuConfig {
     //     throw new Error('Method not implemented.');
     // }
-    // validate?(blockData: BlockToolData): boolean {
-    //     throw new Error('Method not implemented.');
-    // }
+    validate(blockData: BlockToolData): boolean {
+        if (!blockData.settings || typeof blockData.settings.graspedBlockCount !== 'number')
+            return false;
+        if (blockData.settings.graspedBlockCount < 1)
+            return false;
+        if (!blockData.title || typeof blockData.title !== 'string')
+            return false;
+
+        return true;
+    }
     // merge?(blockData: BlockToolData): void {
     //     throw new Error('Method not implemented.');
     // }
