@@ -5,11 +5,8 @@
     align-items: center;
 }
 
-.codex-editor__redactor
-
-/* :has(.accordion-wrapper:hover, */
-/* .accordion-wrapper:focus-within)  */
-    {
+.codex-editor__redactor:has(.accordion-wrapper:hover,
+    .accordion-wrapper:focus-within) {
     --acc-border-color: #ccc;
 }
 
@@ -40,8 +37,8 @@
 .accordion-settings {
     margin-left: auto;
     position: relative;
-    width: 24px;
-    height: 24px;
+    width: var(--icon-size, 24px);
+    height: var(--icon-size, 24px);
     padding: 6px;
     cursor: pointer;
     transition: transform .4s;

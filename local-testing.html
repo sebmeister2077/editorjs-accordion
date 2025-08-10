@@ -41,9 +41,9 @@ https://cdn.jsdelivr.net/npm/@editorjs/table@2.4.5/dist/table.umd.min.js
             } */
         </style>
     </head>
-    <body>
-        <button id="toggle">Toggle readonly</button>
-        <div id="editor" style="background-color: antiquewhite"></div>
+    <body style="display: flex; height: 100vh; max-height: 100vh; flex-direction: column; gap: 10px; overflow: hidden">
+        <button id="toggle" style="padding: 12px">Toggle readonly</button>
+        <div id="editor" style="background-color: antiquewhite; overflow-y: scroll; flex: 1"></div>
         <script>
             const dataLocation = 'editorjs-accordion-data'
             let data = {}
