@@ -13,6 +13,18 @@ type Data = BlockToolData<{
 }>
 type Config = {
     defaultExpanded: boolean;
+    classes?: {
+        wrapper?: string;
+        settings?: string;
+        settingsPopover?: string;
+        settingsContent?: string;
+    },
+    styles?: {
+        blockWrapper?: string;
+        blockContent?: string;
+        lastBlockContent?: string;
+        lastBlockWrapper?: string;
+    }
 }
 /**
  * Create a block for accordion, and it should contain  settings to select the number of following items to be accordioned.
@@ -20,6 +32,7 @@ type Config = {
  * the settings should be hidden in the read only mode.
  * styles need to be applied multi block
  */
+//TODO fix when oving another block inside the accordion, it should not remove the classes from the moved block
 export default class Accordion implements BlockTool {
     public static get toolbox(): ToolboxConfig {
         return {
@@ -35,6 +48,8 @@ export default class Accordion implements BlockTool {
     }
     public WRAPPER_ATTRIBUTE_NAME = 'data-accordion-wrapper';
     private wrapper: HTMLElement;
+    public readonly styleSheetId = 'editorjs-accordion-styles';
+    private readonly styleEl: HTMLStyleElement
     public data: Data;
     private api: API
     private block: BlockAPI;
@@ -47,7 +62,7 @@ export default class Accordion implements BlockTool {
         const defaultConfig: Config = {
             defaultExpanded: true,
         };
-        this.config = config || defaultConfig;
+        this.config = { ...defaultConfig, ...(config ?? {}) };
         const defaultData: Data = {
             settings: {
                 graspedBlockCount: 3,
@@ -65,7 +80,14 @@ export default class Accordion implements BlockTool {
         this._opened = Boolean(this.data.settings.defaultExpanded ?? this.config.defaultExpanded);
         this.wrapper = document.createElement('div');
 
-
+        const styleEl = document.getElementById(this.styleSheetId)
+        if (!styleEl) {
+            this.styleEl = document.createElement('style');
+            this.styleEl.id = this.styleSheetId;
+            document.head.appendChild(this.styleEl);
+        }
+        else
+            this.styleEl = styleEl as HTMLStyleElement;
     }
     // toolbox?: ToolboxConfig | undefined;
     // pasteConfig?: PasteConfig | undefined;
@@ -104,42 +126,12 @@ export default class Accordion implements BlockTool {
     // updated?(): void {
     //     console.log('Accordion block updated');
     // }
-    removed(): void {
-        const index = this.api.blocks.getBlockIndex(this.block.id);
-        const count = this.data.settings.graspedBlockCount;
+    // public removed?(): void {
 
-        const indexesToBeRemoved = new Array(count).fill(index + 1).map((_, i) => _ + i);
-        indexesToBeRemoved.forEach((i) => {
-            const block = this.api.blocks.getBlockByIndex(i);
-            if (!block) return;
-            this.removeClassesFromBlock(block.holder);
-        })
+    // }
 
-    }
-
-    public moved(event: MoveEvent): void {
-        this.renderAccordionBlocks()
-        this.drawAccordionBlocks();
-
-        const hasMovedDown = event.detail.fromIndex < event.detail.toIndex;
-        if (hasMovedDown) {
-            const prevBlock = this.block.holder.previousElementSibling;
-            if (!(prevBlock instanceof HTMLElement)) return;
-            this.removeClassesFromBlock(prevBlock);
-        } else {
-            const siblings = Array.from(this.block.holder.parentElement?.children ?? []);
-            if (!siblings.length) return;
-            const currentIndex = siblings.indexOf(this.block.holder);
-            const siblingsAfterCurrent = siblings.slice(currentIndex + 1);
-            const haveToRemoveLastBlock = siblingsAfterCurrent.length > this.data.settings.graspedBlockCount;
-            if (!haveToRemoveLastBlock) return;
-
-            const lastBlock = siblingsAfterCurrent[this.data.settings.graspedBlockCount];
-            if (!(lastBlock instanceof HTMLElement)) return;
-            this.removeClassesFromBlock(lastBlock);
-        }
-
-    }
+    // public moved?(event: MoveEvent): void {
+    // }
 
 
     public render() {
@@ -235,29 +227,25 @@ export default class Accordion implements BlockTool {
 
     public set opened(value: boolean) {
         this._opened = value;
-        this.drawAccordionBlocks();
         this.rotateChevronIcon();
     }
 
     private get EditorCSS() {
         return {
             block: "ce-block",
-        }
+            block_content: "ce-block__content",
+        } as const
     }
 
     private get CSS() {
         return {
-            wrapper: "accordion-wrapper",
-            settings: "accordion-settings",
-            settingsPopover: "settings-popover",
-            settingsContent: "settings-content",
-            saveSettings: "save-settings",
+            wrapper: `accordion-wrapper ` + (this.config.classes?.wrapper || ''),
+            settings: "accordion-settings" + (this.config.classes?.settings || ''),
+            settingsPopover: "settings-popover" + (this.config.classes?.settingsPopover || ''),
+            settingsContent: "settings-content" + (this.config.classes?.settingsContent || ''),
+            saveSettings: "save-settings" + (this.config.classes?.settingsContent || ''),
             chevronIcon: "accordion-chevron-icon",
             chevronIconRotated: "accordion-chevron-icon-rotated",
-            wrappedBlock: "accordion-wrapped",
-            wrappedBlockLast: "accordion-wrapped-last",
-            wrappedBlockClosed: "accordion-wrapped-closed",
-            wrappedBlockOpened: "accordion-wrapped-opened",
         } as const
     }
 
@@ -281,61 +269,108 @@ export default class Accordion implements BlockTool {
 
     private renderAccordionBlocks() {
         this.block.holder.setAttribute(this.WRAPPER_ATTRIBUTE_NAME, this.data.settings.graspedBlockCount.toString());
-        const blocks = this.getBlocks();
+        if (this.readonly)
+            this.block.holder.setAttribute("data-readonly", '');
+        // create style sheet styles
+        const count = this.data.settings.graspedBlockCount || 1;
 
+        let allStyles = '';
 
-        blocks.forEach((block, index) => {
-            const isLast = index === blocks.length - 1;
-            if (!block.classList.contains(this.EditorCSS.block)) return;
-            if (this.readonly)
-                block.setAttribute("data-readonly", '')
+        if (this.readonly) {
 
-            if (isLast) {
-                block.classList.add(this.CSS.wrappedBlockLast);
-                block.classList.remove(this.CSS.wrappedBlock);
-            }
-            else {
-                block.classList.add(this.CSS.wrappedBlock);
-                block.classList.remove(this.CSS.wrappedBlockLast);
-            }
+            const blockRules = `
+                display: grid;
+                overflow: hidden;
+                transition: grid-template-rows .5s;
+                -webkit-transition: grid-template-rows .5s;
+                -moz-transition: grid-template-rows .5s;
+                -ms-transition: grid-template-rows .5s;
+                -o-transition: grid-template-rows .5s;
+                grid-template-rows: ${this.opened ? 1 : 0}fr;
+`;
+
+            const contentRules = `
+                min-height: 0;
+                width: 650px;
+                transition: border .3s, visibility 0.5s;
+                -webkit-transition: border .3s, visibility 0.5s;
+                -moz-transition: border .3s, visibility 0.5s;
+                -ms-transition: border .3s, visibility 0.5s;
+                -o-transition: border .3s, visibility 0.5s;
+                visibility: ${this.opened ? 'visible' : 'hidden'};
+            `
+
+            const cssBlockStyles = this.generateAccordionSelector(count, blockRules)
+            const cssContentStyles = this.generateAccordionSelector(count, contentRules, ` .${this.EditorCSS.block_content}`);
+
+            allStyles += "\n\n/*CSS block, readonly  styles*/\n" + cssBlockStyles;
+            allStyles += "\n\n/*CSS block content, readonly styles*/\n" + cssContentStyles;
         }
-        )
+        else {
+            const contentRules = `
+                border-left: 1px solid var(--acc-border-color, transparent);
+                border-right: 1px solid var(--acc-border-color, transparent);
+                transition: border .3s, visibility 0.5s;
+                -webkit-transition: border .3s, visibility 0.5s;
+                -moz-transition: border .3s, visibility 0.5s;
+                -ms-transition: border .3s, visibility 0.5s;
+                -o-transition: border .3s, visibility 0.5s;
+                min-height: 0;
+                /* Because display grid from parent prevents this to use default max width of 650px */
+                width: 650px;
+                `;
+            const lastContentRules = `
+                border-bottom: 1px solid var(--acc-border-color, transparent);
+                border-radius: 0 0 15px 15px;
+                -webkit-border-radius: 0 0 15px 15px;
+                -moz-border-radius: 0 0 15px 15px;
+                -ms-border-radius: 0 0 15px 15px;
+                -o-border-radius: 0 0 15px 15px;`
+
+
+
+            const cssContentStyles = this.generateAccordionSelector(count, contentRules, ` .${this.EditorCSS.block_content}`);
+            const lastBlockContentStyles = this.generateAccordtionLastSelector(count, lastContentRules, ` .${this.EditorCSS.block_content}`);
+
+            // debugger
+            allStyles += "\n\n/*CSS block content, edit styles*/\n" + cssContentStyles + '\n' + "\n\n/*CSS last blockc ontent, readonly styles*/\n" + lastBlockContentStyles;
+        }
+
+        const insideContentElementRules = `
+        padding-inline: 80px;`
+        const cssInsideContentStyles = this.generateAccordionSelector(count, insideContentElementRules, ` .${this.EditorCSS.block_content} > *`);
+
+        allStyles += cssInsideContentStyles;
+        this.styleEl.textContent = allStyles;
+
+    }
+
+    private generateAccordionSelector(count: number, rules: string, extraSelector: string = ''): string {
+        const parts: string[] = [];
+
+        for (let i = 1; i <= count; i++) {
+            const siblingChain = Array(i).fill(`+ .${this.EditorCSS.block}`).join(' ');
+            parts.push(`.${this.EditorCSS.block}[${this.WRAPPER_ATTRIBUTE_NAME}="${count}"]:has(.${this.CSS.wrapper}${this.readonly ? "[data-readonly]" : ""}) ${siblingChain}${extraSelector}`);
+        }
+
+        const selector = parts.join(',\n');
+        return `${selector} { ${rules} }`;
+    }
+
+    private generateAccordtionLastSelector(count: number, rules: string, extraSelector: string = ''): string {
+        const parts: string[] = [];
+
+        const siblingChain = Array(count).fill(`+ .${this.EditorCSS.block}`).join(' ');
+        parts.push(`.${this.EditorCSS.block}[${this.WRAPPER_ATTRIBUTE_NAME}="${count}"]:has(.${this.CSS.wrapper}) ${siblingChain}${extraSelector}`);
+
+        const selector = parts.join(',\n');
+        return `${selector} { ${rules} }`;
     }
 
     private toggleAccordion(event: Event) {
         this.opened = !this.opened;
     }
 
-    private drawAccordionBlocks() {
-        const blocks: HTMLElement[] = [];
-        const blockCount = this.data.settings.graspedBlockCount || 1;
-
-        if (!(this.block.holder.nextElementSibling instanceof HTMLElement)) return;
-        let next = this.block.holder.nextElementSibling;
-
-        for (let i = 0; i < blockCount; i++) {
-            blocks.push(next);
-            if (!(next.nextElementSibling instanceof HTMLElement)) break;
-            next = next.nextElementSibling;
-
-        }
-
-        blocks.forEach((block, index) => {
-            if (!this.readonly) {
-                block.classList.remove(this.CSS.wrappedBlockOpened);
-                block.classList.remove(this.CSS.wrappedBlockClosed);
-                return;
-            }
-            if (this.opened) {
-                block.classList.add(this.CSS.wrappedBlockOpened);
-                block.classList.remove(this.CSS.wrappedBlockClosed);
-            }
-            else {
-                block.classList.add(this.CSS.wrappedBlockClosed);
-                block.classList.remove(this.CSS.wrappedBlockOpened);
-            }
-        });
-    }
 
     private rotateChevronIcon() {
         const chevronIcon = this.wrapper.querySelector(`.${this.CSS.chevronIcon}`);
@@ -346,13 +381,12 @@ export default class Accordion implements BlockTool {
             chevronIcon.classList.add(this.CSS.chevronIconRotated);
         }
     }
+}
 
-    private removeClassesFromBlock(block: HTMLElement) {
-        block.classList.remove(this.CSS.wrappedBlock);
-        block.classList.remove(this.CSS.wrappedBlockLast);
-        block.classList.remove(this.CSS.wrappedBlockClosed);
-        block.classList.remove(this.CSS.wrappedBlockOpened);
-    }
+function validateCssRules(rules: string): boolean {
+    const testElement = document.createElement('div');
+    testElement.style.cssText = rules;
+    return testElement.style.cssText === rules;
 }
 function stopPropagation(event: Event) {
     event.stopPropagation();

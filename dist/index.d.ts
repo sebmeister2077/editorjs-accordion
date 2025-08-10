@@ -1,4 +1,4 @@
-import { BlockToolConstructorOptions, MoveEvent } from '@editorjs/editorjs/types/tools';
+import { BlockToolConstructorOptions } from '@editorjs/editorjs/types/tools';
 import './index.css';
 import { BlockToolData, ToolboxConfig, type BlockTool } from '@editorjs/editorjs';
 type Data = BlockToolData<{
@@ -10,6 +10,18 @@ type Data = BlockToolData<{
 }>;
 type Config = {
     defaultExpanded: boolean;
+    classes?: {
+        wrapper?: string;
+        settings?: string;
+        settingsPopover?: string;
+        settingsContent?: string;
+    };
+    styles?: {
+        blockWrapper?: string;
+        blockContent?: string;
+        lastBlockContent?: string;
+        lastBlockWrapper?: string;
+    };
 };
 /**
  * Create a block for accordion, and it should contain  settings to select the number of following items to be accordioned.
@@ -23,6 +35,8 @@ export default class Accordion implements BlockTool {
     static get isInline(): boolean;
     WRAPPER_ATTRIBUTE_NAME: string;
     private wrapper;
+    readonly styleSheetId = "editorjs-accordion-styles";
+    private readonly styleEl;
     data: Data;
     private api;
     private block;
@@ -31,8 +45,6 @@ export default class Accordion implements BlockTool {
     private _opened;
     constructor({ data, api, block, readOnly, config }: BlockToolConstructorOptions<Data, Config>);
     validate(blockData: BlockToolData): boolean;
-    removed(): void;
-    moved(event: MoveEvent): void;
     render(): HTMLElement;
     rendered(): void;
     save(blockContent: HTMLElement): {
@@ -48,9 +60,9 @@ export default class Accordion implements BlockTool {
     private get CSS();
     private getBlocks;
     private renderAccordionBlocks;
+    private generateAccordionSelector;
+    private generateAccordtionLastSelector;
     private toggleAccordion;
-    private drawAccordionBlocks;
     private rotateChevronIcon;
-    private removeClassesFromBlock;
 }
 export {};

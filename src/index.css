@@ -5,13 +5,16 @@
     align-items: center;
 }
 
-.codex-editor__redactor:has(.accordion-wrapper:hover,
-    .accordion-wrapper:focus-within) {
-    --border-color: #ccc;
+.codex-editor__redactor
+
+/* :has(.accordion-wrapper:hover, */
+/* .accordion-wrapper:focus-within)  */
+    {
+    --acc-border-color: #ccc;
 }
 
 .ce-block__content:has(.accordion-wrapper:not([data-readonly])) {
-    border: 1px solid var(--border-color, transparent);
+    border: 1px solid var(--acc-border-color, transparent);
     border-radius: 15px 15px 0px 0px;
     -webkit-border-radius: 15px 15px 0px 0px;
     -moz-border-radius: 15px 15px 0px 0px;
@@ -62,7 +65,7 @@
     top: 100%;
     right: 0;
     background: white;
-    border: 1px solid var(--border-color, transparent);
+    border: 1px solid var(--acc-border-color, transparent);
     border-radius: 5px;
     padding: 10px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -104,87 +107,4 @@
     -moz-transform: rotate(180deg);
     -ms-transform: rotate(180deg);
     -o-transform: rotate(180deg);
-}
-
-.accordion-wrapped[data-readonly],
-.accordion-wrapped-last[data-readonly] {
-    display: grid;
-    /* grid-template-rows: 1fr; */
-    overflow: hidden;
-    transition: grid-template-rows .5s;
-    -webkit-transition: grid-template-rows .5s;
-    -moz-transition: grid-template-rows .5s;
-    -ms-transition: grid-template-rows .5s;
-    -o-transition: grid-template-rows .5s;
-}
-
-.accordion-wrapped:not([data-readonly]) .ce-block__content {
-    border-left: 1px solid var(--border-color, transparent);
-    border-right: 1px solid var(--border-color, transparent);
-    transition: border .3s;
-    -webkit-transition: border .3s;
-    -moz-transition: border .3s;
-    -ms-transition: border .3s;
-    -o-transition: border .3s;
-}
-
-/* 
-Alternative to manually assigning classes would be to use
- .ce-block:has(.accordion-wrapper[data-count=1]) + .ce-block, 
- .ce-block:has(.accordion-wrapper[data-count=2]) + .ce-block, 
- .ce-block:has(.accordion-wrapper[data-count=2]) + .ce-block +.ce-block,    
- .ce-block:has(.accordion-wrapper[data-count=3]) + .ce-block ,    
- .ce-block:has(.accordion-wrapper[data-count=3]) + .ce-block +.ce-block,    
- .ce-block:has(.accordion-wrapper[data-count=3]) + .ce-block +.ce-block +.ce-block,    
-
- */
-.accordion-wrapped-last:not([data-readonly]) .ce-block__content {
-    transition: border .3s;
-    -webkit-transition: border .3s;
-    -moz-transition: border .3s;
-    -ms-transition: border .3s;
-    -o-transition: border .3s;
-    border-left: 1px solid var(--border-color, transparent);
-    border-right: 1px solid var(--border-color, transparent);
-    border-bottom: 1px solid var(--border-color, transparent);
-    border-radius: 0 0 15px 15px;
-    -webkit-border-radius: 0 0 15px 15px;
-    -moz-border-radius: 0 0 15px 15px;
-    -ms-border-radius: 0 0 15px 15px;
-    -o-border-radius: 0 0 15px 15px;
-}
-
-.accordion-wrapped .ce-block__content>*,
-.accordion-wrapped-last .ce-block__content>* {
-    padding-inline: 80px;
-}
-
-
-.accordion-wrapped-closed {
-    grid-template-rows: 0fr;
-}
-
-.accordion-wrapped-closed .ce-block__content {
-    visibility: hidden;
-}
-
-.accordion-wrapped-opened {
-    grid-template-rows: 1fr;
-}
-
-.accordion-wrapped-opened .ce-block__content {
-    visibility: visible;
-
-}
-
-.accordion-wrapped-closed .ce-block__content,
-.accordion-wrapped-opened .ce-block__content {
-    min-height: 0;
-    /* Because display grid from parent prevents this to use default max width of 650px */
-    width: 650px;
-    transition: visibility 0.5s;
-    -webkit-transition: visibility 0.5s;
-    -moz-transition: visibility 0.5s;
-    -ms-transition: visibility 0.5s;
-    -o-transition: visibility 0.5s;
 }
