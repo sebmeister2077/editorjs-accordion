@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Test indent</title>
+        <title>Test accorddion</title>
         <script>
             if (!globalThis.Cypress) {
                 window.editorVersion = '2.30'
@@ -23,6 +23,9 @@ https://cdn.jsdelivr.net/npm/@editorjs/header@2.8.7/dist/header.umd.min.js
 "></script>
         <script src="
 https://cdn.jsdelivr.net/npm/@editorjs/list@1.10.0/dist/list.umd.min.js
+"></script>
+        <script src="
+https://cdn.jsdelivr.net/npm/@editorjs/table@2.4.5/dist/table.umd.min.js
 "></script>
         <script src="./dist/dev-build.js"></script>
         <style>
@@ -61,14 +64,17 @@ https://cdn.jsdelivr.net/npm/@editorjs/list@1.10.0/dist/list.umd.min.js
                     header: {
                         class: self.Header,
                     },
+                    table: {
+                        class: self.Table,
+                    },
                     accordion: {
                         class: AccordionBlock,
                     },
                 },
                 readOnly,
                 onChange(api, changedBlocks) {
-                    console.log('🚀 ~ onChange ~ api:', changedBlocks)
                     api.saver.save().then((data) => {
+                        console.log('🚀 ~ onChange ~ data:', data)
                         localStorage.setItem(dataLocation, JSON.stringify(data))
                     })
                 },

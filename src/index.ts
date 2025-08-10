@@ -80,7 +80,7 @@ export default class Accordion implements BlockTool {
     // }
     // sanitize?: SanitizerConfig | undefined;
     // renderSettings?(): HTMLElement | MenuConfig {
-    //     throw new Error('Method not implemented.');
+    //     // throw new Error('Method not implemented.');
     // }
     validate(blockData: BlockToolData): boolean {
         if (!blockData.settings || typeof blockData.settings.graspedBlockCount !== 'number')
@@ -149,16 +149,17 @@ export default class Accordion implements BlockTool {
         this.wrapper.classList.add(this.CSS.wrapper);
         const title = document.createElement("div");
         title.setAttribute('contenteditable', this.readonly ? 'false' : 'true');
-        title.innerText = this.data.title ?? "";
+        title.textContent = this.data.title ?? "";
         this.wrapper.appendChild(title);
         title.addEventListener('input', (event) => {
             if (!(event.target instanceof HTMLDivElement)) return;
-            this.data.title = event.target.innerText
+            this.data.title = event.target.textContent
             this.block.dispatchChange();
         });
 
         const settings = document.createElement("div");
         settings.classList.add(this.CSS.settings);
+        settings.setAttribute('aria-label', this.api.i18n.t("Settings"));
 
         settings.setAttribute('type', 'button');
 

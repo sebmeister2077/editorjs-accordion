@@ -1,6 +1,6 @@
 import { BlockToolConstructorOptions, MoveEvent } from '@editorjs/editorjs/types/tools';
 import './index.css';
-import { BlockToolData, type BlockTool } from '@editorjs/editorjs';
+import { BlockToolData, ToolboxConfig, type BlockTool } from '@editorjs/editorjs';
 type Data = BlockToolData<{
     settings: {
         graspedBlockCount: number;
@@ -18,11 +18,9 @@ type Config = {
  * styles need to be applied multi block
  */
 export default class Accordion implements BlockTool {
-    static get toolbox(): {
-        title: string;
-        icon: string;
-    };
+    static get toolbox(): ToolboxConfig;
     static get isReadOnlySupported(): boolean;
+    static get isInline(): boolean;
     WRAPPER_ATTRIBUTE_NAME: string;
     private wrapper;
     data: Data;
@@ -32,6 +30,7 @@ export default class Accordion implements BlockTool {
     private readonly;
     private _opened;
     constructor({ data, api, block, readOnly, config }: BlockToolConstructorOptions<Data, Config>);
+    validate(blockData: BlockToolData): boolean;
     removed(): void;
     moved(event: MoveEvent): void;
     render(): HTMLElement;
