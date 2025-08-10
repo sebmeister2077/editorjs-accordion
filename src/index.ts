@@ -4,6 +4,8 @@ import { API, BlockAPI, BlockToolConstructable, BlockToolData, ConversionConfig,
 import { accordionIcon, gearIcon } from './icons';
 import { IconChevronUp } from '@codexteam/icons';
 
+
+
 type Data = BlockToolData<{
     settings: {
         graspedBlockCount: number;
@@ -12,6 +14,9 @@ type Data = BlockToolData<{
     title: string;
 }>
 type Config = {
+    /**
+     * Default value for the accordion to be expanded or not during read mode.
+     */
     defaultExpanded: boolean;
     classes?: {
         wrapper?: string;
@@ -20,19 +25,26 @@ type Config = {
         settingsContent?: string;
     },
     styles?: {
+        /**
+         * Rules applied to .ce-block[data-readonly] .accordion-wrapper
+         */
         blockWrapper?: string;
+        /**
+         * Rules applied to .ce-block__content when the editor is readonly
+        */
+        //  full selector: '.ce-block[data-readonly]:where(> .ce-block__content, + .ce-block .ce-block__content , + .ce-block + .ce-block .ce-block__content...)`
         blockContent?: string;
+        /**
+         * Rules applied to the last block content
+         */
         lastBlockContent?: string;
-        lastBlockWrapper?: string;
+        /**
+         * Rules applied to the inside content of the block, like paragraphs, headings, lists, etc.
+         * explanatory selector: '.ce-block__content > *'
+         */
+        insideContent?: string;
     }
 }
-/**
- * Create a block for accordion, and it should contain  settings to select the number of following items to be accordioned.
- * in read only the accordion should be expanded by default (depends on settings).
- * the settings should be hidden in the read only mode.
- * styles need to be applied multi block
- */
-//TODO fix when oving another block inside the accordion, it should not remove the classes from the moved block
 export default class Accordion implements BlockTool {
     public static get toolbox(): ToolboxConfig {
         return {
@@ -88,6 +100,8 @@ export default class Accordion implements BlockTool {
         }
         else
             this.styleEl = styleEl as HTMLStyleElement;
+
+        this.verifyGivenStyles();
     }
     // toolbox?: ToolboxConfig | undefined;
     // pasteConfig?: PasteConfig | undefined;
@@ -239,11 +253,11 @@ export default class Accordion implements BlockTool {
 
     private get CSS() {
         return {
-            wrapper: `accordion-wrapper ` + (this.config.classes?.wrapper || ''),
-            settings: "accordion-settings" + (this.config.classes?.settings || ''),
-            settingsPopover: "settings-popover" + (this.config.classes?.settingsPopover || ''),
-            settingsContent: "settings-content" + (this.config.classes?.settingsContent || ''),
-            saveSettings: "save-settings" + (this.config.classes?.settingsContent || ''),
+            wrapper: (`accordion-wrapper ` + (this.config.classes?.wrapper || '')).trim(),
+            settings: ("accordion-settings " + (this.config.classes?.settings || '')).trim(),
+            settingsPopover: ("settings-popover " + (this.config.classes?.settingsPopover || '')).trim(),
+            settingsContent: ("settings-content " + (this.config.classes?.settingsContent || '')).trim(),
+            saveSettings: ("save-settings " + (this.config.classes?.settingsContent || '')).trim(),
             chevronIcon: "accordion-chevron-icon",
             chevronIconRotated: "accordion-chevron-icon-rotated",
         } as const
@@ -278,6 +292,7 @@ export default class Accordion implements BlockTool {
 
         if (this.readonly) {
 
+
             const blockRules = `
                 display: grid;
                 overflow: hidden;
@@ -287,6 +302,7 @@ export default class Accordion implements BlockTool {
                 -ms-transition: grid-template-rows .5s;
                 -o-transition: grid-template-rows .5s;
                 grid-template-rows: ${this.opened ? 1 : 0}fr;
+                ${this.config.styles?.blockWrapper ?? ""}
 `;
 
             const contentRules = `
@@ -298,6 +314,7 @@ export default class Accordion implements BlockTool {
                 -ms-transition: border .3s, visibility 0.5s;
                 -o-transition: border .3s, visibility 0.5s;
                 visibility: ${this.opened ? 'visible' : 'hidden'};
+                ${this.config.styles?.blockContent ?? ""}
             `
 
             const cssBlockStyles = this.generateAccordionSelector(count, blockRules)
@@ -318,6 +335,7 @@ export default class Accordion implements BlockTool {
                 min-height: 0;
                 /* Because display grid from parent prevents this to use default max width of 650px */
                 width: 650px;
+                ${this.config.styles?.blockContent ?? ""}
                 `;
             const lastContentRules = `
                 border-bottom: 1px solid var(--acc-border-color, transparent);
@@ -325,19 +343,20 @@ export default class Accordion implements BlockTool {
                 -webkit-border-radius: 0 0 15px 15px;
                 -moz-border-radius: 0 0 15px 15px;
                 -ms-border-radius: 0 0 15px 15px;
-                -o-border-radius: 0 0 15px 15px;`
-
-
+                -o-border-radius: 0 0 15px 15px;
+                ${this.config.styles?.lastBlockContent ?? ""}
+                `
 
             const cssContentStyles = this.generateAccordionSelector(count, contentRules, ` .${this.EditorCSS.block_content}`);
             const lastBlockContentStyles = this.generateAccordtionLastSelector(count, lastContentRules, ` .${this.EditorCSS.block_content}`);
 
-            // debugger
             allStyles += "\n\n/*CSS block content, edit styles*/\n" + cssContentStyles + '\n' + "\n\n/*CSS last blockc ontent, readonly styles*/\n" + lastBlockContentStyles;
         }
 
         const insideContentElementRules = `
-        padding-inline: 80px;`
+            padding-inline: 80px;
+            ${this.config.styles?.insideContent ?? ""}
+        `
         const cssInsideContentStyles = this.generateAccordionSelector(count, insideContentElementRules, ` .${this.EditorCSS.block_content} > *`);
 
         allStyles += cssInsideContentStyles;
@@ -380,6 +399,17 @@ export default class Accordion implements BlockTool {
         } else {
             chevronIcon.classList.add(this.CSS.chevronIconRotated);
         }
+    }
+
+    private verifyGivenStyles() {
+        const rules = [this.config.styles?.blockWrapper, this.config.styles?.blockContent, this.config.styles?.lastBlockContent, this.config.styles?.insideContent];
+        for (const rule of rules) {
+            if (rule && !validateCssRules(rule)) {
+                console.warn(`Invalid CSS rules provided: '${rule}'. Insert only the css styles`);
+                break;
+            }
+        }
+
     }
 }
 

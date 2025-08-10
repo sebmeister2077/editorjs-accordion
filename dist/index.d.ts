@@ -9,6 +9,9 @@ type Data = BlockToolData<{
     title: string;
 }>;
 type Config = {
+    /**
+     * Default value for the accordion to be expanded or not during read mode.
+     */
     defaultExpanded: boolean;
     classes?: {
         wrapper?: string;
@@ -17,18 +20,25 @@ type Config = {
         settingsContent?: string;
     };
     styles?: {
+        /**
+         * Rules applied to .ce-block[data-readonly] .accordion-wrapper
+         */
         blockWrapper?: string;
+        /**
+         * Rules applied to .ce-block__content when the editor is readonly
+        */
         blockContent?: string;
+        /**
+         * Rules applied to the last block content
+         */
         lastBlockContent?: string;
-        lastBlockWrapper?: string;
+        /**
+         * Rules applied to the inside content of the block, like paragraphs, headings, lists, etc.
+         * explanatory selector: '.ce-block__content > *'
+         */
+        insideContent?: string;
     };
 };
-/**
- * Create a block for accordion, and it should contain  settings to select the number of following items to be accordioned.
- * in read only the accordion should be expanded by default (depends on settings).
- * the settings should be hidden in the read only mode.
- * styles need to be applied multi block
- */
 export default class Accordion implements BlockTool {
     static get toolbox(): ToolboxConfig;
     static get isReadOnlySupported(): boolean;
@@ -64,5 +74,6 @@ export default class Accordion implements BlockTool {
     private generateAccordtionLastSelector;
     private toggleAccordion;
     private rotateChevronIcon;
+    private verifyGivenStyles;
 }
 export {};
