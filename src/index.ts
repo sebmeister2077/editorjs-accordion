@@ -58,7 +58,7 @@ export default class Accordion implements BlockTool {
     public static get isInline() {
         return false;
     }
-    public WRAPPER_ATTRIBUTE_NAME = 'data-accordion-wrapper';
+    public static WRAPPER_ATTRIBUTE_NAME = 'data-accordion-wrapper';
     private wrapper: HTMLElement;
     public readonly styleSheetId = 'editorjs-accordion-styles';
     private readonly styleEl: HTMLStyleElement
@@ -273,7 +273,7 @@ export default class Accordion implements BlockTool {
         for (let i = 0; i < blockCount; i++) {
             blocks.push(next);
             if (!(next.nextElementSibling instanceof HTMLElement)) break;
-            const isNextWrapper = next.nextElementSibling.hasAttribute(this.WRAPPER_ATTRIBUTE_NAME);
+            const isNextWrapper = next.nextElementSibling.hasAttribute(Accordion.WRAPPER_ATTRIBUTE_NAME);
             if (isNextWrapper) break;
             next = next.nextElementSibling;
 
@@ -282,14 +282,17 @@ export default class Accordion implements BlockTool {
     }
 
     private renderAccordionBlocks() {
-        this.block.holder.setAttribute(this.WRAPPER_ATTRIBUTE_NAME, this.data.settings.graspedBlockCount.toString());
+        this.block.holder.setAttribute(Accordion.WRAPPER_ATTRIBUTE_NAME, this.data.settings.graspedBlockCount.toString());
         if (this.readonly)
             this.block.holder.setAttribute("data-readonly", '');
         // create style sheet styles
         const count = this.data.settings.graspedBlockCount || 1;
 
-        let allStyles = '';
 
+        const isStylesAlreadyDrawn = this.styleEl.textContent?.includes(`.${this.EditorCSS.block}[${Accordion.WRAPPER_ATTRIBUTE_NAME}="${count}"]`);
+        if (isStylesAlreadyDrawn) return;
+
+        let allStyles = '';
         if (this.readonly) {
 
 
@@ -360,7 +363,8 @@ export default class Accordion implements BlockTool {
         const cssInsideContentStyles = this.generateAccordionSelector(count, insideContentElementRules, ` .${this.EditorCSS.block_content} > *`);
 
         allStyles += cssInsideContentStyles;
-        this.styleEl.textContent = allStyles;
+        // append styles for the current COUNTa
+        this.styleEl.textContent += allStyles;
 
     }
 
@@ -369,7 +373,7 @@ export default class Accordion implements BlockTool {
 
         for (let i = 1; i <= count; i++) {
             const siblingChain = Array(i).fill(`+ .${this.EditorCSS.block}`).join(' ');
-            parts.push(`.${this.EditorCSS.block}[${this.WRAPPER_ATTRIBUTE_NAME}="${count}"]:has(.${this.CSS.wrapper}${this.readonly ? "[data-readonly]" : ""}) ${siblingChain}${extraSelector}`);
+            parts.push(`.${this.EditorCSS.block}[${Accordion.WRAPPER_ATTRIBUTE_NAME}="${count}"]:has(.${this.CSS.wrapper}${this.readonly ? "[data-readonly]" : ""}) ${siblingChain}${extraSelector}`);
         }
 
         const selector = parts.join(',\n');
@@ -379,8 +383,32 @@ export default class Accordion implements BlockTool {
     private generateAccordtionLastSelector(count: number, rules: string, extraSelector: string = ''): string {
         const parts: string[] = [];
 
-        const siblingChain = Array(count).fill(`+ .${this.EditorCSS.block}`).join(' ');
-        parts.push(`.${this.EditorCSS.block}[${this.WRAPPER_ATTRIBUTE_NAME}="${count}"]:has(.${this.CSS.wrapper}) ${siblingChain}${extraSelector}`);
+        /**
+         * Example 
+         *  
+            first scenario, all blocks exist, and are not another wrapper 
+            .ce-block[data-accordion-wrapper="3"]:has(.accordion-wrapper)+.ce-block:not([data-accordion-wrapper])+.ce-block:not([data-accordion-wrapper])+.ce-block:not([data-accordion-wrapper]) .ce-block__content,
+            second scenario, only some blocks exist, ant there are not another wrapper, ex accordion at end of editor 
+            .ce-block[data-accordion-wrapper="3"]:has(.accordion-wrapper)+.ce-block:not([data-accordion-wrapper])+.ce-block:not([data-accordion-wrapper]):last-child .ce-block__content,
+            .ce-block[data-accordion-wrapper="3"]:has(.accordion-wrapper)+.ce-block:not([data-accordion-wrapper]):last-child .ce-block__content,
+
+            third scenario, blocks exist but are cut off by another wrapper 
+            .ce-block[data-accordion-wrapper="3"]:has(.accordion-wrapper)+.ce-block:not([data-accordion-wrapper])+.ce-block:not([data-accordion-wrapper]):has(+.ce-block[data-accordion-wrapper]) .ce-block__content,
+            .ce-block[data-accordion-wrapper="3"]:has(.accordion-wrapper)+.ce-block:not([data-accordion-wrapper]):has(+.ce-block[data-accordion-wrapper]) .ce-block__content {
+                background-color: red;
+            }
+         */
+        const siblingChain = Array(count).fill(`+ .${this.EditorCSS.block}:not([${Accordion.WRAPPER_ATTRIBUTE_NAME}])`).join(' ');
+        parts.push(`.${this.EditorCSS.block}[${Accordion.WRAPPER_ATTRIBUTE_NAME}="${count}"]:has(.${this.CSS.wrapper}) ${siblingChain}${extraSelector}`);
+        for (let i = count - 1; i > 0; i--) {
+            const partialChainWithoutWrapper = Array(i).fill(`+ .${this.EditorCSS.block}:not([${Accordion.WRAPPER_ATTRIBUTE_NAME}])`).join(' ');
+            parts.push(`.${this.EditorCSS.block}[${Accordion.WRAPPER_ATTRIBUTE_NAME}="${count}"]:has(.${this.CSS.wrapper}) ${partialChainWithoutWrapper}:last-child${extraSelector}`);
+        }
+
+        for (let i = count - 1; i > 0; i--) {
+            const partialChainWithWrapper = Array(i).fill(`+ .${this.EditorCSS.block}:not([${Accordion.WRAPPER_ATTRIBUTE_NAME}])`).join(' ');
+            parts.push(`.${this.EditorCSS.block}[${Accordion.WRAPPER_ATTRIBUTE_NAME}="${count}"]:has(.${this.CSS.wrapper}) ${partialChainWithWrapper}:has(+ .${this.EditorCSS.block}[${Accordion.WRAPPER_ATTRIBUTE_NAME}])${extraSelector}`);
+        }
 
         const selector = parts.join(',\n');
         return `${selector} { ${rules} }`;

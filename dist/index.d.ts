@@ -43,7 +43,7 @@ export default class Accordion implements BlockTool {
     static get toolbox(): ToolboxConfig;
     static get isReadOnlySupported(): boolean;
     static get isInline(): boolean;
-    WRAPPER_ATTRIBUTE_NAME: string;
+    static WRAPPER_ATTRIBUTE_NAME: string;
     private wrapper;
     readonly styleSheetId = "editorjs-accordion-styles";
     private readonly styleEl;
