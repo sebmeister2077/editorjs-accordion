@@ -199,9 +199,9 @@ export default class Accordion implements BlockTool {
                 });
             }
             function removeListener(event: PointerEvent) {
-                if (event.target !== settings && !popover.contains(event.target as Node)) {
-                    popover.remove();
-                }
+                if (event.target === settings || popover.contains(event.target as Node))
+                    return;
+                popover.remove();
                 document.removeEventListener('click', removeListener, { capture: true });
             }
             document.addEventListener('click', removeListener, { capture: true });
