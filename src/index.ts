@@ -8,7 +8,7 @@ import { IconChevronUp } from '@codexteam/icons';
 
 type Data = BlockToolData<{
     settings: {
-        graspedBlockCount: number;
+        blockCount: number;
         defaultExpanded?: boolean;
     },
     title: string;
@@ -23,6 +23,9 @@ type Config = {
         settings?: string;
         settingsPopover?: string;
         settingsContent?: string;
+        settingsBlockConfig?: string;
+        settingsCheckbox?: string;
+        settingsDelimiter?: string;
     },
     styles?: {
         /**
@@ -78,14 +81,17 @@ export default class Accordion implements BlockTool {
         this.config = { ...defaultConfig, ...(config ?? {}) };
         const defaultData: Data = {
             settings: {
-                graspedBlockCount: 3,
+                blockCount: 3,
                 defaultExpanded: this.config.defaultExpanded,
             },
             title: '',
         }
-        this.data = data || defaultData;
+        this.data = { ...defaultData, ...data };
         if (!this.data.settings) {
             this.data.settings = defaultData.settings;
+        }
+        if (!this.data.title) {
+            this.data.title = defaultData.title;
         }
         this.api = api;
         this.block = block;
@@ -119,11 +125,11 @@ export default class Accordion implements BlockTool {
     //     // throw new Error('Method not implemented.');
     // }
     validate(blockData: BlockToolData): boolean {
-        if (!blockData.settings || typeof blockData.settings.graspedBlockCount !== 'number')
+        if (!blockData.settings || typeof blockData.settings.blockCount !== 'number')
             return false;
-        if (blockData.settings.graspedBlockCount < 1)
+        if (blockData.settings.blockCount < 1)
             return false;
-        if (!blockData.title || typeof blockData.title !== 'string')
+        if (typeof blockData.title !== 'string')
             return false;
 
         return true;
@@ -172,32 +178,46 @@ export default class Accordion implements BlockTool {
         settings.addEventListener('click', () => {
             const popover = document.createElement('div');
             popover.classList.add(this.CSS.settingsPopover);
+
+            const countId = `blockCount-${this.block.id}`;
             popover.innerHTML = /*html*/`
                 <div class="${this.CSS.settingsContent}">
-                    <label for="graspedBlockCount">Grasped Block Count:</label>
-                    <input type="number" id="graspedBlockCount" class="${this.api.styles.input}" value="${this.data.settings?.graspedBlockCount ?? 1}" min="1" max="10">
-                    <button type="button" class="${this.CSS.saveSettings}">${this.api.i18n.t("Save")}</button>
+                    <div class="${this.CSS.settingsBlockConfig}">
+                        <label for="${countId}">${this.api.i18n.t("Block Count")}</label>
+                        <input type="number" id="${countId}" class="${this.api.styles.input}" value="${this.data.settings?.blockCount ?? 1}" min="1" max="10">
+                        <button type="button" class="${this.CSS.saveSettings}">${this.api.i18n.t("Save")}</button>
+                    </div>
+                    <div class="${this.CSS.settingsDelimiter}"></div>
+                    <div  class="${this.CSS.settingsBlockConfig}">
+                        <label for="defaultExpanded">${this.api.i18n.t("Default Expanded")}</label>
+                        <input type="checkbox" id="defaultExpanded" class="${this.CSS.settingsCheckbox}" ${this.data.settings?.defaultExpanded ? 'checked' : ''}>
+                    </div>
                 </div>
             `;
 
-            const input = popover.querySelector<HTMLInputElement>('#graspedBlockCount');
+            const defaultExpandedCheckbox = popover.querySelector<HTMLInputElement>('#defaultExpanded');
+            const countInput = popover.querySelector<HTMLInputElement>(`#${countId}`);
             const saveButton = popover.querySelector<HTMLButtonElement>('.save-settings');
-            if (input && saveButton) {
-                input.addEventListener('input', stopPropagation);
-                input.addEventListener("keydown", stopPropagation);
-                input.addEventListener("keyup", stopPropagation);
-                input.addEventListener("keypress", stopPropagation);
+            if (countInput && saveButton) {
+                countInput.addEventListener('input', stopPropagation);
+                countInput.addEventListener("keydown", stopPropagation);
+                countInput.addEventListener("keyup", stopPropagation);
+                countInput.addEventListener("keypress", stopPropagation);
 
 
                 saveButton.addEventListener('click', () => {
-                    this.data.settings.graspedBlockCount = parseInt(input.value)
+                    this.data.settings.blockCount = parseInt(countInput.value)
                     this.block.dispatchChange();
                     popover.remove();
 
                     this.renderAccordionBlocks()
-
                 });
             }
+            defaultExpandedCheckbox?.addEventListener('change', (event) => {
+                if (!(event.target instanceof HTMLInputElement)) return;
+                this.data.settings.defaultExpanded = event.target.checked;
+                this.block.dispatchChange();
+            })
             function removeListener(event: PointerEvent) {
                 if (event.target === settings || popover.contains(event.target as Node))
                     return;
@@ -259,7 +279,10 @@ export default class Accordion implements BlockTool {
             settings: ("accordion-settings " + (this.config.classes?.settings || '')).trim(),
             settingsPopover: ("settings-popover " + (this.config.classes?.settingsPopover || '')).trim(),
             settingsContent: ("settings-content " + (this.config.classes?.settingsContent || '')).trim(),
+            settingsBlockConfig: "settings-block-config" + (this.config.classes?.settingsBlockConfig || ''),
+            settingsCheckbox: "settings-checkbox" + (this.config.classes?.settingsCheckbox || ''),
             saveSettings: ("save-settings " + (this.config.classes?.settingsContent || '')).trim(),
+            settingsDelimiter: "settings-delimiter" + (this.config.classes?.settingsDelimiter || ''),
             chevronIcon: "accordion-chevron-icon",
             chevronIconRotated: "accordion-chevron-icon-rotated",
         } as const
@@ -267,7 +290,7 @@ export default class Accordion implements BlockTool {
 
     private getBlocks() {
         const blocks: HTMLElement[] = [];
-        const blockCount = this.data.settings.graspedBlockCount || 1;
+        const blockCount = this.data.settings.blockCount || 1;
 
         if (!(this.block.holder.nextElementSibling instanceof HTMLElement)) return [];
         let next = this.block.holder.nextElementSibling;
@@ -284,11 +307,11 @@ export default class Accordion implements BlockTool {
     }
 
     private renderAccordionBlocks() {
-        this.block.holder.setAttribute(Accordion.WRAPPER_ATTRIBUTE_NAME, this.data.settings.graspedBlockCount.toString());
+        this.block.holder.setAttribute(Accordion.WRAPPER_ATTRIBUTE_NAME, this.data.settings.blockCount.toString());
         if (this.readonly)
             this.block.holder.setAttribute("data-readonly", '');
         // create style sheet styles
-        const count = this.data.settings.graspedBlockCount || 1;
+        const count = this.data.settings.blockCount || 1;
 
         const isStylesAlreadyDrawn = this.styleEl.textContent?.includes(`.${this.EditorCSS.block}[${Accordion.WRAPPER_ATTRIBUTE_NAME}="${count}"][data-id="${this.block.id}"]`);
         if (isStylesAlreadyDrawn) return;
@@ -315,12 +338,14 @@ export default class Accordion implements BlockTool {
                 -moz-transition: border .3s, visibility 0.5s;
                 -ms-transition: border .3s, visibility 0.5s;
                 -o-transition: border .3s, visibility 0.5s;
-                visibility: ${this.opened ? 'visible' : 'hidden'};
+                /* Because display grid from parent prevents this to use default max width of 650px */
+                width: 650px;
                 ${this.config.styles?.blockContent ?? ""}
-            `
+                `
+        // visibility: ${this.opened ? 'visible' : 'hidden'};
 
-        const cssCreaonlyBlockStyles = this.generateAccordionSelector(count, readonlyBlockRules, `:not([${Accordion.WRAPPER_ATTRIBUTE_NAME}])`, true)
-        const cssReadonlyContentStyles = this.generateAccordionSelector(count, readonlyContentRules, `:not([${Accordion.WRAPPER_ATTRIBUTE_NAME}]) .${this.EditorCSS.block_content}`);
+        const cssCreaonlyBlockStyles = this.generateAccordionSelector({ count, rules: readonlyBlockRules, extraSelector: `:not([${Accordion.WRAPPER_ATTRIBUTE_NAME}])`, includeWrapperId: true, readonly: true })
+        const cssReadonlyContentStyles = this.generateAccordionSelector({ count, rules: readonlyContentRules, extraSelector: `:not([${Accordion.WRAPPER_ATTRIBUTE_NAME}]) .${this.EditorCSS.block_content}`, readonly: true });
 
         allStyles += "\n\n/*CSS block, READONLY  styles*/\n" + cssCreaonlyBlockStyles;
         allStyles += "\n\n/*CSS block content, READONLY styles*/\n" + cssReadonlyContentStyles;
@@ -347,8 +372,8 @@ export default class Accordion implements BlockTool {
                 ${this.config.styles?.lastBlockContent ?? ""}
                 `
 
-        const cssEditContentStyles = this.generateAccordionSelector(count, editContentRules, ` .${this.EditorCSS.block_content}`);
-        const editLastBlockContentStyles = this.generateAccordtionLastSelector(count, editLastContentRules, ` .${this.EditorCSS.block_content}`);
+        const cssEditContentStyles = this.generateAccordionSelector({ count, rules: editContentRules, extraSelector: ` .${this.EditorCSS.block_content}`, readonly: false });
+        const editLastBlockContentStyles = this.generateAccordtionLastSelector({ count, rules: editLastContentRules, extraSelector: ` .${this.EditorCSS.block_content}`, readonly: false });
 
         allStyles += "\n\n/*CSS block content, EDIT styles*/\n" + cssEditContentStyles + '\n' + "\n\n/*CSS last block content, EDIT styles*/\n" + editLastBlockContentStyles;
 
@@ -356,7 +381,7 @@ export default class Accordion implements BlockTool {
             padding-inline: 20px;
             ${this.config.styles?.insideContent ?? ""}
         `
-        const cssInsideContentStyles = this.generateAccordionSelector(count, insideContentElementRules, `:not([${Accordion.WRAPPER_ATTRIBUTE_NAME}]) .${this.EditorCSS.block_content} > *`);
+        const cssInsideContentStyles = this.generateAccordionSelector({ count, rules: insideContentElementRules, extraSelector: `:not([${Accordion.WRAPPER_ATTRIBUTE_NAME}]) .${this.EditorCSS.block_content} > *` });
 
         allStyles += cssInsideContentStyles;
         // append styles for the current COUNTa
@@ -364,19 +389,36 @@ export default class Accordion implements BlockTool {
 
     }
 
-    private generateAccordionSelector(count: number, rules: string, extraSelector: string = '', includeWrapperId: boolean = false): string {
+    private generateAccordionSelector({
+        count,
+        rules,
+        extraSelector = '',
+        includeWrapperId = false
+        , readonly
+    }: {
+        count: number, rules: string, extraSelector?: string, includeWrapperId?: boolean;
+        readonly?: boolean;
+    }): string {
         const parts: string[] = [];
 
         for (let i = 1; i <= count; i++) {
             const siblingChain = Array(i).fill(`+ .${this.EditorCSS.block}`).join(' ');
-            parts.push(`.${this.EditorCSS.block}[${Accordion.WRAPPER_ATTRIBUTE_NAME}="${count}"][data-id="${this.block.id}"]:has(.${this.CSS.wrapper}${this.readonly ? "[data-readonly]" : ""}) ${siblingChain}${extraSelector}`);
+            parts.push(`.${this.EditorCSS.block}[${Accordion.WRAPPER_ATTRIBUTE_NAME}="${count}"][data-id="${this.block.id}"]${readonly ? "[data-readonly]" : ":not([data-readonly])"}:has(.${this.CSS.wrapper}) ${siblingChain}${extraSelector}`);
         }
 
         const selector = parts.join(',\n');
         return `${selector} { ${rules} }`;
     }
 
-    private generateAccordtionLastSelector(count: number, rules: string, extraSelector: string = ''): string {
+    private generateAccordtionLastSelector({
+        count,
+        rules,
+        extraSelector = ''
+        , readonly
+    }: {
+        count: number, rules: string, extraSelector?: string,
+        readonly?: boolean;
+    }): string {
         const parts: string[] = [];
 
         /**
@@ -395,15 +437,15 @@ export default class Accordion implements BlockTool {
             }
          */
         const siblingChain = Array(count).fill(`+ .${this.EditorCSS.block}:not([${Accordion.WRAPPER_ATTRIBUTE_NAME}])`).join(' ');
-        parts.push(`.${this.EditorCSS.block}[${Accordion.WRAPPER_ATTRIBUTE_NAME}="${count}"]:has(.${this.CSS.wrapper}${this.readonly ? "[data-readonly]" : ""}) ${siblingChain}${extraSelector}`);
+        parts.push(`.${this.EditorCSS.block}[${Accordion.WRAPPER_ATTRIBUTE_NAME}="${count}"]${readonly ? "[data-readonly]" : ":not([data-readonly])"}:has(.${this.CSS.wrapper}) ${siblingChain}${extraSelector}`);
         for (let i = count - 1; i > 0; i--) {
             const partialChainWithoutWrapper = Array(i).fill(`+ .${this.EditorCSS.block}:not([${Accordion.WRAPPER_ATTRIBUTE_NAME}])`).join(' ');
-            parts.push(`.${this.EditorCSS.block}[${Accordion.WRAPPER_ATTRIBUTE_NAME}="${count}"]:has(.${this.CSS.wrapper}${this.readonly ? "[data-readonly]" : ""}) ${partialChainWithoutWrapper}:last-child${extraSelector}`);
+            parts.push(`.${this.EditorCSS.block}[${Accordion.WRAPPER_ATTRIBUTE_NAME}="${count}"]${readonly ? "[data-readonly]" : ":not([data-readonly])"}:has(.${this.CSS.wrapper}) ${partialChainWithoutWrapper}:last-child${extraSelector}`);
         }
 
         for (let i = count - 1; i > 0; i--) {
             const partialChainWithWrapper = Array(i).fill(`+ .${this.EditorCSS.block}:not([${Accordion.WRAPPER_ATTRIBUTE_NAME}])`).join(' ');
-            parts.push(`.${this.EditorCSS.block}[${Accordion.WRAPPER_ATTRIBUTE_NAME}="${count}"]:has(.${this.CSS.wrapper}${this.readonly ? "[data-readonly]" : ""}) ${partialChainWithWrapper}:has(+ .${this.EditorCSS.block}[${Accordion.WRAPPER_ATTRIBUTE_NAME}])${extraSelector}`);
+            parts.push(`.${this.EditorCSS.block}[${Accordion.WRAPPER_ATTRIBUTE_NAME}="${count}"]${readonly ? "[data-readonly]" : ":not([data-readonly])"}:has(.${this.CSS.wrapper}) ${partialChainWithWrapper}:has(+ .${this.EditorCSS.block}[${Accordion.WRAPPER_ATTRIBUTE_NAME}])${extraSelector}`);
         }
 
         const selector = parts.join(',\n');

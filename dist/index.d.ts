@@ -3,7 +3,7 @@ import './index.css';
 import { BlockToolData, ToolboxConfig, type BlockTool } from '@editorjs/editorjs';
 type Data = BlockToolData<{
     settings: {
-        graspedBlockCount: number;
+        blockCount: number;
         defaultExpanded?: boolean;
     };
     title: string;
@@ -18,6 +18,9 @@ type Config = {
         settings?: string;
         settingsPopover?: string;
         settingsContent?: string;
+        settingsBlockConfig?: string;
+        settingsCheckbox?: string;
+        settingsDelimiter?: string;
     };
     styles?: {
         /**
@@ -60,7 +63,7 @@ export default class Accordion implements BlockTool {
     rendered(): void;
     save(blockContent: HTMLElement): {
         settings: {
-            graspedBlockCount: number;
+            blockCount: number;
             defaultExpanded?: boolean;
         };
         title: string;
