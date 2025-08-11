@@ -18,35 +18,45 @@ type Config = {
      * Default value for the accordion to be expanded or not during read mode.
      */
     defaultExpanded: boolean;
-    classes?: {
-        wrapper?: string;
-        settings?: string;
-        settingsPopover?: string;
-        settingsContent?: string;
-        settingsBlockConfig?: string;
-        settingsCheckbox?: string;
-        settingsDelimiter?: string;
-    },
-    styles?: {
-        /**
-         * Rules applied to .ce-block[data-readonly] .accordion-wrapper
-         */
-        blockWrapper?: string;
-        /**
-         * Rules applied to .ce-block__content when the editor is readonly
-        */
-        //  full selector: '.ce-block[data-readonly]:where(> .ce-block__content, + .ce-block .ce-block__content , + .ce-block + .ce-block .ce-block__content...)`
-        blockContent?: string;
-        /**
-         * Rules applied to the last block content
-         */
-        lastBlockContent?: string;
-        /**
-         * Rules applied to the inside content of the block, like paragraphs, headings, lists, etc.
-         * explanatory selector: '.ce-block__content > *'
-         */
-        insideContent?: string;
+    overrides?: {
+
+        classes?: {
+            wrapper?: string;
+            settings?: string;
+            settingsPopover?: string;
+            settingsContent?: string;
+            settingsBlockConfig?: string;
+            settingsCheckbox?: string;
+            settingsDelimiter?: string;
+        },
+        styles?: {
+            /**
+             * Rules applied to .ce-block[data-readonly] .accordion-wrapper
+             */
+            blockWrapper?: string;
+            /**
+             * Rules applied to .ce-block__content when the editor is readonly
+            */
+            //  full selector: '.ce-block[data-readonly]:where(> .ce-block__content, + .ce-block .ce-block__content , + .ce-block + .ce-block .ce-block__content...)`
+            blockContent?: string;
+            /**
+             * Rules applied to the last block content
+             */
+            lastBlockContent?: string;
+            /**
+             * Rules applied to the inside content of the block, like paragraphs, headings, lists, etc.
+             * explanatory selector: '.ce-block__content > *'
+            */
+            insideContent?: string;
+        };
+        settingsIcon?: HTMLElement
     }
+    disableAnimation?: boolean;
+    /**
+     * The max allowed block count
+     * @default 10
+     */
+    maxBlockCount?: number;
 }
 export default class Accordion implements BlockTool {
     public static get toolbox(): ToolboxConfig {
@@ -77,6 +87,7 @@ export default class Accordion implements BlockTool {
         this.CSSOpenVariableName = `--acc-opened-${block.id}`;
         const defaultConfig: Config = {
             defaultExpanded: true,
+            maxBlockCount: 10,
         };
         this.config = { ...defaultConfig, ...(config ?? {}) };
         const defaultData: Data = {
@@ -174,7 +185,12 @@ export default class Accordion implements BlockTool {
         settings.setAttribute('aria-label', this.api.i18n.t("Settings"));
 
         settings.setAttribute('type', 'button');
-        settings.innerHTML = gearIcon
+        if (this.config.overrides?.settingsIcon) {
+            settings.appendChild(this.config.overrides.settingsIcon)
+        }
+        else {
+            settings.innerHTML = gearIcon
+        }
         settings.addEventListener('click', () => {
             const popover = document.createElement('div');
             popover.classList.add(this.CSS.settingsPopover);
@@ -184,7 +200,7 @@ export default class Accordion implements BlockTool {
                 <div class="${this.CSS.settingsContent}">
                     <div class="${this.CSS.settingsBlockConfig}">
                         <label for="${countId}">${this.api.i18n.t("Block Count")}</label>
-                        <input type="number" id="${countId}" class="${this.api.styles.input}" value="${this.data.settings?.blockCount ?? 1}" min="1" max="10">
+                        <input type="number" id="${countId}" class="${this.api.styles.input}" value="${this.data.settings?.blockCount ?? 1}" min="1" max="${this.config.maxBlockCount}">
                         <button type="button" class="${this.CSS.saveSettings}">${this.api.i18n.t("Save")}</button>
                     </div>
                     <div class="${this.CSS.settingsDelimiter}"></div>
@@ -275,14 +291,14 @@ export default class Accordion implements BlockTool {
 
     private get CSS() {
         return {
-            wrapper: (`accordion-wrapper ` + (this.config.classes?.wrapper || '')).trim(),
-            settings: ("accordion-settings " + (this.config.classes?.settings || '')).trim(),
-            settingsPopover: ("settings-popover " + (this.config.classes?.settingsPopover || '')).trim(),
-            settingsContent: ("settings-content " + (this.config.classes?.settingsContent || '')).trim(),
-            settingsBlockConfig: "settings-block-config" + (this.config.classes?.settingsBlockConfig || ''),
-            settingsCheckbox: "settings-checkbox" + (this.config.classes?.settingsCheckbox || ''),
-            saveSettings: ("save-settings " + (this.config.classes?.settingsContent || '')).trim(),
-            settingsDelimiter: "settings-delimiter" + (this.config.classes?.settingsDelimiter || ''),
+            wrapper: (`accordion-wrapper ` + (this.config.overrides?.classes?.wrapper || '')).trim(),
+            settings: ("accordion-settings " + (this.config.overrides?.classes?.settings || '')).trim(),
+            settingsPopover: ("settings-popover " + (this.config.overrides?.classes?.settingsPopover || '')).trim(),
+            settingsContent: ("settings-content " + (this.config.overrides?.classes?.settingsContent || '')).trim(),
+            settingsBlockConfig: "settings-block-config" + (this.config.overrides?.classes?.settingsBlockConfig || ''),
+            settingsCheckbox: "settings-checkbox" + (this.config.overrides?.classes?.settingsCheckbox || ''),
+            saveSettings: ("save-settings " + (this.config.overrides?.classes?.settingsContent || '')).trim(),
+            settingsDelimiter: "settings-delimiter" + (this.config.overrides?.classes?.settingsDelimiter || ''),
             chevronIcon: "accordion-chevron-icon",
             chevronIconRotated: "accordion-chevron-icon-rotated",
             cssAccordionBorderColorVar: "--acc-border-color" + this.block.id,
@@ -320,16 +336,19 @@ export default class Accordion implements BlockTool {
 
         let allStyles = '';
 
-        const readonlyBlockRules = `
-                display: grid;
-                overflow: hidden;
+        const closeAnimationRules = `
                 transition: grid-template-rows .5s;
                 -webkit-transition: grid-template-rows .5s;
                 -moz-transition: grid-template-rows .5s;
                 -ms-transition: grid-template-rows .5s;
                 -o-transition: grid-template-rows .5s;
+        `
+        const readonlyBlockRules = `
+                display: grid;
+                overflow: hidden;
+                ${this.config.disableAnimation ? "" : closeAnimationRules}
                 grid-template-rows: var(${this.CSSOpenVariableName}, 0fr);
-                ${this.config.styles?.blockWrapper ?? ""}
+                ${this.config.overrides?.styles?.blockWrapper ?? ""}
 `;
 
         // width: 650px;
@@ -342,7 +361,7 @@ export default class Accordion implements BlockTool {
                 -o-transition: border .3s, visibility 0.5s;
                 /* Because display grid from parent prevents this to use default max width of 650px */
                 width: 650px;
-                ${this.config.styles?.blockContent ?? ""}
+                ${this.config.overrides?.styles?.blockContent ?? ""}
                 `
         // visibility: ${this.opened ? 'visible' : 'hidden'};
 
@@ -363,7 +382,7 @@ export default class Accordion implements BlockTool {
                 min-height: 0;
                 /* Because display grid from parent prevents this to use default max width of 650px */
                 width: 650px;
-                ${this.config.styles?.blockContent ?? ""}
+                ${this.config.overrides?.styles?.blockContent ?? ""}
                 `;
         const editLastContentRules = `
                 border-bottom: 1px solid var(${variableName}, transparent);
@@ -372,7 +391,7 @@ export default class Accordion implements BlockTool {
                 -moz-border-radius: 0 0 15px 15px;
                 -ms-border-radius: 0 0 15px 15px;
                 -o-border-radius: 0 0 15px 15px;
-                ${this.config.styles?.lastBlockContent ?? ""}
+                ${this.config.overrides?.styles?.lastBlockContent ?? ""}
                 `
 
         const cssEditContentStyles = this.generateAccordionSelector({ count, rules: editContentRules, extraSelector: ` .${this.EditorCSS.block_content}`, readonly: false });
@@ -382,7 +401,7 @@ export default class Accordion implements BlockTool {
 
         const insideContentElementRules = `
             padding-inline: 20px;
-            ${this.config.styles?.insideContent ?? ""}
+            ${this.config.overrides?.styles?.insideContent ?? ""}
         `
         const cssInsideContentStyles = this.generateAccordionSelector({ count, rules: insideContentElementRules, extraSelector: `:not([${Accordion.WRAPPER_ATTRIBUTE_NAME}]) .${this.EditorCSS.block_content} > *` });
 
@@ -477,7 +496,7 @@ export default class Accordion implements BlockTool {
     }
 
     private verifyGivenStyles() {
-        const rules = [this.config.styles?.blockWrapper, this.config.styles?.blockContent, this.config.styles?.lastBlockContent, this.config.styles?.insideContent];
+        const rules = [this.config.overrides?.styles?.blockWrapper, this.config.overrides?.styles?.blockContent, this.config.overrides?.styles?.lastBlockContent, this.config.overrides?.styles?.insideContent];
         for (const rule of rules) {
             if (rule && !validateCssRules(rule)) {
                 console.warn(`Invalid CSS rules provided: '${rule}'. Insert only the css styles`);

@@ -90,7 +90,9 @@ https://cdn.jsdelivr.net/npm/@editorjs/table@2.4.5/dist/table.umd.min.js
                     accordion: {
                         class: AccordionBlock,
                         config: {
-                            styles,
+                            overrides: { styles },
+                            disableAnimation: true,
+                            maxBlockCount: 90,
                         },
                     },
                 },

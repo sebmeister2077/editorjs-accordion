@@ -13,34 +13,43 @@ type Config = {
      * Default value for the accordion to be expanded or not during read mode.
      */
     defaultExpanded: boolean;
-    classes?: {
-        wrapper?: string;
-        settings?: string;
-        settingsPopover?: string;
-        settingsContent?: string;
-        settingsBlockConfig?: string;
-        settingsCheckbox?: string;
-        settingsDelimiter?: string;
+    overrides?: {
+        classes?: {
+            wrapper?: string;
+            settings?: string;
+            settingsPopover?: string;
+            settingsContent?: string;
+            settingsBlockConfig?: string;
+            settingsCheckbox?: string;
+            settingsDelimiter?: string;
+        };
+        styles?: {
+            /**
+             * Rules applied to .ce-block[data-readonly] .accordion-wrapper
+             */
+            blockWrapper?: string;
+            /**
+             * Rules applied to .ce-block__content when the editor is readonly
+            */
+            blockContent?: string;
+            /**
+             * Rules applied to the last block content
+             */
+            lastBlockContent?: string;
+            /**
+             * Rules applied to the inside content of the block, like paragraphs, headings, lists, etc.
+             * explanatory selector: '.ce-block__content > *'
+            */
+            insideContent?: string;
+        };
+        settingsIcon?: HTMLElement;
     };
-    styles?: {
-        /**
-         * Rules applied to .ce-block[data-readonly] .accordion-wrapper
-         */
-        blockWrapper?: string;
-        /**
-         * Rules applied to .ce-block__content when the editor is readonly
-        */
-        blockContent?: string;
-        /**
-         * Rules applied to the last block content
-         */
-        lastBlockContent?: string;
-        /**
-         * Rules applied to the inside content of the block, like paragraphs, headings, lists, etc.
-         * explanatory selector: '.ce-block__content > *'
-         */
-        insideContent?: string;
-    };
+    disableAnimation?: boolean;
+    /**
+     * The max allowed block count
+     * @default 10
+     */
+    maxBlockCount?: number;
 };
 export default class Accordion implements BlockTool {
     static get toolbox(): ToolboxConfig;
