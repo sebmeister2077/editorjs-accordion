@@ -5,13 +5,13 @@
     align-items: center;
 }
 
-.codex-editor__redactor:has(.accordion-wrapper:hover,
-    .accordion-wrapper:focus-within) {
+.codex-editor__redactor {
     --acc-border-color: #ccc;
 }
 
-.ce-block__content:has(.accordion-wrapper:not([data-readonly])) {
-    border: 1px solid var(--acc-border-color, transparent);
+
+[data-accordion-wrapper]:not([data-readonly]) .ce-block__content {
+    border: 1px solid transparent;
     border-radius: 15px 15px 0px 0px;
     -webkit-border-radius: 15px 15px 0px 0px;
     -moz-border-radius: 15px 15px 0px 0px;
@@ -22,6 +22,10 @@
     -moz-transition: border .3s;
     -ms-transition: border .3s;
     -o-transition: border .3s;
+}
+
+[data-accordion-wrapper]:not([data-readonly]):is(:hover, :focus-within) .ce-block__content {
+    border: 1px solid var(--acc-border-color, transparent);
 }
 
 .ce-block__content:has(.accordion-wrapper[data-readonly]) {

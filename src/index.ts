@@ -61,7 +61,7 @@ export default class Accordion implements BlockTool {
     public static get isInline() {
         return false;
     }
-    public static WRAPPER_ATTRIBUTE_NAME = 'data-accordion-wrapper';
+    public static WRAPPER_ATTRIBUTE_NAME = 'data-accordion-wrapper' as const;
     public CSSOpenVariableName: string
     private wrapper: HTMLElement;
     public readonly styleSheetId = 'editorjs-accordion-styles';
@@ -285,8 +285,10 @@ export default class Accordion implements BlockTool {
             settingsDelimiter: "settings-delimiter" + (this.config.classes?.settingsDelimiter || ''),
             chevronIcon: "accordion-chevron-icon",
             chevronIconRotated: "accordion-chevron-icon-rotated",
+            cssAccordionBorderColorVar: "--acc-border-color" + this.block.id,
         } as const
     }
+
 
     private getBlocks() {
         const blocks: HTMLElement[] = [];
@@ -349,9 +351,10 @@ export default class Accordion implements BlockTool {
 
         allStyles += "\n\n/*CSS block, READONLY  styles*/\n" + cssCreaonlyBlockStyles;
         allStyles += "\n\n/*CSS block content, READONLY styles*/\n" + cssReadonlyContentStyles;
+        const variableName = this.CSS.cssAccordionBorderColorVar
         const editContentRules = `
-                border-left: 1px solid var(--acc-border-color, transparent);
-                border-right: 1px solid var(--acc-border-color, transparent);
+                border-left: 1px solid var(${variableName}, transparent);
+                border-right: 1px solid var(${variableName}, transparent);
                 transition: border .3s, visibility 0.5s;
                 -webkit-transition: border .3s, visibility 0.5s;
                 -moz-transition: border .3s, visibility 0.5s;
@@ -363,7 +366,7 @@ export default class Accordion implements BlockTool {
                 ${this.config.styles?.blockContent ?? ""}
                 `;
         const editLastContentRules = `
-                border-bottom: 1px solid var(--acc-border-color, transparent);
+                border-bottom: 1px solid var(${variableName}, transparent);
                 border-radius: 0 0 15px 15px;
                 -webkit-border-radius: 0 0 15px 15px;
                 -moz-border-radius: 0 0 15px 15px;
@@ -383,7 +386,13 @@ export default class Accordion implements BlockTool {
         `
         const cssInsideContentStyles = this.generateAccordionSelector({ count, rules: insideContentElementRules, extraSelector: `:not([${Accordion.WRAPPER_ATTRIBUTE_NAME}]) .${this.EditorCSS.block_content} > *` });
 
-        allStyles += cssInsideContentStyles;
+        const hoverAccordionStyles = /*css*/`
+            .codex-editor__redactor:has([${Accordion.WRAPPER_ATTRIBUTE_NAME}][data-id=${this.block.id}]:hover,[${Accordion.WRAPPER_ATTRIBUTE_NAME}][data-id=${this.block.id}]:focus-within) {
+                ${this.CSS.cssAccordionBorderColorVar}: var(--acc-border-color);
+            }
+        `
+
+        allStyles += cssInsideContentStyles + hoverAccordionStyles;
         // append styles for the current COUNTa
         this.styleEl.textContent += allStyles;
 
@@ -437,15 +446,15 @@ export default class Accordion implements BlockTool {
             }
          */
         const siblingChain = Array(count).fill(`+ .${this.EditorCSS.block}:not([${Accordion.WRAPPER_ATTRIBUTE_NAME}])`).join(' ');
-        parts.push(`.${this.EditorCSS.block}[${Accordion.WRAPPER_ATTRIBUTE_NAME}="${count}"]${readonly ? "[data-readonly]" : ":not([data-readonly])"}:has(.${this.CSS.wrapper}) ${siblingChain}${extraSelector}`);
+        parts.push(`.${this.EditorCSS.block}[${Accordion.WRAPPER_ATTRIBUTE_NAME}="${count}"][data-id="${this.block.id}"]${readonly ? "[data-readonly]" : ":not([data-readonly])"}:has(.${this.CSS.wrapper}) ${siblingChain}${extraSelector}`);
         for (let i = count - 1; i > 0; i--) {
             const partialChainWithoutWrapper = Array(i).fill(`+ .${this.EditorCSS.block}:not([${Accordion.WRAPPER_ATTRIBUTE_NAME}])`).join(' ');
-            parts.push(`.${this.EditorCSS.block}[${Accordion.WRAPPER_ATTRIBUTE_NAME}="${count}"]${readonly ? "[data-readonly]" : ":not([data-readonly])"}:has(.${this.CSS.wrapper}) ${partialChainWithoutWrapper}:last-child${extraSelector}`);
+            parts.push(`.${this.EditorCSS.block}[${Accordion.WRAPPER_ATTRIBUTE_NAME}="${count}"][data-id="${this.block.id}"]${readonly ? "[data-readonly]" : ":not([data-readonly])"}:has(.${this.CSS.wrapper}) ${partialChainWithoutWrapper}:last-child${extraSelector}`);
         }
 
         for (let i = count - 1; i > 0; i--) {
             const partialChainWithWrapper = Array(i).fill(`+ .${this.EditorCSS.block}:not([${Accordion.WRAPPER_ATTRIBUTE_NAME}])`).join(' ');
-            parts.push(`.${this.EditorCSS.block}[${Accordion.WRAPPER_ATTRIBUTE_NAME}="${count}"]${readonly ? "[data-readonly]" : ":not([data-readonly])"}:has(.${this.CSS.wrapper}) ${partialChainWithWrapper}:has(+ .${this.EditorCSS.block}[${Accordion.WRAPPER_ATTRIBUTE_NAME}])${extraSelector}`);
+            parts.push(`.${this.EditorCSS.block}[${Accordion.WRAPPER_ATTRIBUTE_NAME}="${count}"][data-id="${this.block.id}"]${readonly ? "[data-readonly]" : ":not([data-readonly])"}:has(.${this.CSS.wrapper}) ${partialChainWithWrapper}:has(+ .${this.EditorCSS.block}[${Accordion.WRAPPER_ATTRIBUTE_NAME}])${extraSelector}`);
         }
 
         const selector = parts.join(',\n');
