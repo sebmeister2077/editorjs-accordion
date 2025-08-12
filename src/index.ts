@@ -57,6 +57,9 @@ type Config = {
      * @default 10
      */
     maxBlockCount?: number;
+
+    //TODO might look into this if it is better (would require to listen to the DOM changes manually)
+    // useJSDrawing?:boolean
 }
 export default class Accordion implements BlockTool {
     public static get toolbox(): ToolboxConfig {
