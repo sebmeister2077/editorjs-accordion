@@ -348,6 +348,7 @@ export default class Accordion implements BlockTool {
         let allStyles = '';
 
         const closeAnimationRules = `
+                will-change: grid-template-rows;
                 transition: grid-template-rows .5s;
                 -webkit-transition: grid-template-rows .5s;
                 -moz-transition: grid-template-rows .5s;
@@ -365,11 +366,12 @@ export default class Accordion implements BlockTool {
         // width: 650px;
         const readonlyContentRules = `
                 min-height: 0;
-                transition: border .3s, visibility 0.5s;
-                -webkit-transition: border .3s, visibility 0.5s;
-                -moz-transition: border .3s, visibility 0.5s;
-                -ms-transition: border .3s, visibility 0.5s;
-                -o-transition: border .3s, visibility 0.5s;
+                will-change:border;
+                transition: border .3s;
+                -webkit-transition: border .3s;
+                -moz-transition: border .3s;
+                -ms-transition: border .3s;
+                -o-transition: border .3s;
                 /* Because display grid from parent prevents this to use default max width of 650px */
                 width: 650px;
                 ${this.config.overrides?.styles?.blockContent ?? ""}
@@ -385,11 +387,12 @@ export default class Accordion implements BlockTool {
         const editContentRules = `
                 border-left: 1px solid var(${variableName}, transparent);
                 border-right: 1px solid var(${variableName}, transparent);
-                transition: border .3s, visibility 0.5s;
-                -webkit-transition: border .3s, visibility 0.5s;
-                -moz-transition: border .3s, visibility 0.5s;
-                -ms-transition: border .3s, visibility 0.5s;
-                -o-transition: border .3s, visibility 0.5s;
+                will-change: border;
+                transition: border .3s;
+                -webkit-transition: border .3s;
+                -moz-transition: border .3s;
+                -ms-transition: border .3s;
+                -o-transition: border .3s;
                 min-height: 0;
                 /* Because display grid from parent prevents this to use default max width of 650px */
                 width: 650px;

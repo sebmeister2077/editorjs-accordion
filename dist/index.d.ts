@@ -1,6 +1,6 @@
 import { BlockToolConstructorOptions } from '@editorjs/editorjs/types/tools';
 import './index.css';
-import { BlockToolData, SanitizerConfig, ToolboxConfig, type BlockTool } from '@editorjs/editorjs';
+import { BlockToolData, ToolboxConfig, type BlockTool } from '@editorjs/editorjs';
 type Data = BlockToolData<{
     settings: {
         blockCount: number;
@@ -68,7 +68,6 @@ export default class Accordion implements BlockTool {
     private readonly;
     private _opened;
     constructor({ data, api, block, readOnly, config }: BlockToolConstructorOptions<Data, Config>);
-    get sanitize(): SanitizerConfig | undefined;
     validate(blockData: BlockToolData): boolean;
     render(): HTMLElement;
     rendered(): void;

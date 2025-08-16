@@ -6,6 +6,10 @@
     position: relative;
 }
 
+.ce-block__content {
+    border-color: transparent;
+}
+
 .accordion-title {}
 
 .codex-editor__redactor {
