@@ -127,7 +127,6 @@ export default class Accordion implements BlockTool {
     // toolbox?: ToolboxConfig | undefined;
     // pasteConfig?: PasteConfig | undefined;
     // conversionConfig?: ConversionConfig | undefined;
-    // isInline?: boolean | undefined;
     // title?: string | undefined;
     // prepare?(data: { toolName: string; config: ToolConfig; }): void | Promise<void> {
     //     throw new Error('Method not implemented.');
@@ -440,10 +439,11 @@ export default class Accordion implements BlockTool {
         readonly?: boolean;
     }): string {
         const parts: string[] = [];
+        const readonlyPart = readonly === undefined ? "" : readonly ? "[data-readonly]" : ":not([data-readonly])"
 
         for (let i = 1; i <= count; i++) {
             const siblingChain = Array(i).fill(`+ .${this.EditorCSS.block}:not([${Accordion.WRAPPER_ATTRIBUTE_NAME}])`).join(' ');
-            parts.push(`.${this.EditorCSS.block}[${Accordion.WRAPPER_ATTRIBUTE_NAME}="${count}"][data-id="${this.block.id}"]${readonly ? "[data-readonly]" : ":not([data-readonly])"}:has(.${this.CSS.wrapper}) ${siblingChain}${extraSelector}`);
+            parts.push(`.${this.EditorCSS.block}[${Accordion.WRAPPER_ATTRIBUTE_NAME}="${count}"][data-id="${this.block.id}"]${readonlyPart}:has(.${this.CSS.wrapper}) ${siblingChain}${extraSelector}`);
         }
 
         const selector = parts.join(',\n');

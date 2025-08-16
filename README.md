@@ -93,6 +93,7 @@ const editor = new EditorJS({
 | `defaultExpanded`                       | `boolean`     | Whether accordion is expanded in read mode by default.                        | `true`      |
 | `overrides.classes.wrapper`             | `string`      | Extra CSS classes for the accordion wrapper.                                  | `""`        |
 | `overrides.classes.settings`            | `string`      | Extra classes for settings button container.                                  | `""`        |
+| `overrides.classes.title`            | `string`      | Extra classes for the titlec.                                  | `""`        |
 | `overrides.classes.settingsPopover`     | `string`      | Extra classes for settings popover container.                                 | `""`        |
 | `overrides.classes.settingsContent`     | `string`      | Extra classes for popover content.                                            | `""`        |
 | `overrides.classes.settingsBlockConfig` | `string`      | Extra classes for popover block config wrapper.                               | `""`        |
