@@ -27,6 +27,9 @@ https://cdn.jsdelivr.net/npm/@editorjs/list@1.10.0/dist/list.umd.min.js
         <script src="
 https://cdn.jsdelivr.net/npm/@editorjs/table@2.4.5/dist/table.umd.min.js
 "></script>
+        <script src="
+https://cdn.jsdelivr.net/npm/@editorjs/image@2.10/dist/image.umd.js
+"></script>
         <script src="./dist/dev-build.js"></script>
         <style>
             /* .ce-block__content::before {
@@ -46,11 +49,25 @@ https://cdn.jsdelivr.net/npm/@editorjs/table@2.4.5/dist/table.umd.min.js
         <div id="editor" style="background-color: antiquewhite; overflow-y: scroll; flex: 1"></div>
         <script>
             const dataLocation = 'editorjs-accordion-data'
+            const imageData = {
+                type: 'image',
+                data: {
+                    file: {
+                        url: 'https://www.tesla.com/tesla_theme/assets/img/_vehicle_redesign/roadster_and_semi/roadster/hero.jpg',
+                    },
+                    caption: 'Roadster // tesla.com',
+                    withBorder: false,
+                    withBackground: false,
+                    stretched: true,
+                },
+            }
             let data = {}
             try {
                 data = JSON.parse(localStorage.getItem(dataLocation))
             } catch {}
             let readOnly = false
+
+            if (!data.blocks.find((b) => b.type === 'image')) data.blocks.push(imageData)
 
             const version = window.editorVersion
             const AccordionBlock = self.AccordionBlock
@@ -86,6 +103,9 @@ https://cdn.jsdelivr.net/npm/@editorjs/table@2.4.5/dist/table.umd.min.js
                     },
                     table: {
                         class: self.Table,
+                    },
+                    image: {
+                        class: self.ImageTool,
                     },
                     accordion: {
                         class: AccordionBlock,

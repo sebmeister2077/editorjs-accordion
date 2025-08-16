@@ -420,7 +420,7 @@ export default class Accordion implements BlockTool {
         const cssInsideContentStyles = this.generateAccordionSelector({ count, rules: insideContentElementRules, extraSelector: `:not([${Accordion.WRAPPER_ATTRIBUTE_NAME}]) .${this.EditorCSS.block_content} > *` });
 
         const hoverAccordionStyles = /*css*/`
-            .codex-editor__redactor:has([${Accordion.WRAPPER_ATTRIBUTE_NAME}][data-id=${this.block.id}]:hover,[${Accordion.WRAPPER_ATTRIBUTE_NAME}][data-id=${this.block.id}]:focus-within) {
+            .codex-editor__redactor:has([${Accordion.WRAPPER_ATTRIBUTE_NAME}][data-id="${this.block.id}"]:hover,[${Accordion.WRAPPER_ATTRIBUTE_NAME}][data-id="${this.block.id}"]:focus-within) {
                 ${this.CSS.cssAccordionBorderColorVar}: var(--acc-border-color);
             }
         `
