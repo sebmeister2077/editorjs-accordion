@@ -433,7 +433,7 @@ export default class Accordion implements BlockTool {
         const parts: string[] = [];
 
         for (let i = 1; i <= count; i++) {
-            const siblingChain = Array(i).fill(`+ .${this.EditorCSS.block}`).join(' ');
+            const siblingChain = Array(i).fill(`+ .${this.EditorCSS.block}:not([${Accordion.WRAPPER_ATTRIBUTE_NAME}])`).join(' ');
             parts.push(`.${this.EditorCSS.block}[${Accordion.WRAPPER_ATTRIBUTE_NAME}="${count}"][data-id="${this.block.id}"]${readonly ? "[data-readonly]" : ":not([data-readonly])"}:has(.${this.CSS.wrapper}) ${siblingChain}${extraSelector}`);
         }
 
