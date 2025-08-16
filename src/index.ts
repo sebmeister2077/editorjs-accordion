@@ -22,6 +22,7 @@ type Config = {
 
         classes?: {
             wrapper?: string;
+            title?: string;
             settings?: string;
             settingsPopover?: string;
             settingsContent?: string;
@@ -183,6 +184,12 @@ export default class Accordion implements BlockTool {
             this.block.dispatchChange();
         });
 
+        const emptyEl = document.createElement("span")
+        emptyEl.style.width = "30px";
+        emptyEl.style.zIndex = "-1"
+        this.wrapper.appendChild(emptyEl)
+
+
         const settings = document.createElement("div");
         settings.classList.add(this.CSS.settings);
         settings.setAttribute('aria-label', this.api.i18n.t("Settings"));
@@ -295,6 +302,8 @@ export default class Accordion implements BlockTool {
     private get CSS() {
         return {
             wrapper: (`accordion-wrapper ` + (this.config.overrides?.classes?.wrapper || '')).trim(),
+            title: ((`accordion-title `) + this.config.overrides?.classes?.title || '').trim(),
+
             settings: ("accordion-settings " + (this.config.overrides?.classes?.settings || '')).trim(),
             settingsPopover: ("settings-popover " + (this.config.overrides?.classes?.settingsPopover || '')).trim(),
             settingsContent: ("settings-content " + (this.config.overrides?.classes?.settingsContent || '')).trim(),

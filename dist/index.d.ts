@@ -16,6 +16,7 @@ type Config = {
     overrides?: {
         classes?: {
             wrapper?: string;
+            title?: string;
             settings?: string;
             settingsPopover?: string;
             settingsContent?: string;

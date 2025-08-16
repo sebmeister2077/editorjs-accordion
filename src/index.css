@@ -3,7 +3,10 @@
     flex-direction: row;
     gap: 10px;
     align-items: center;
+    position: relative;
 }
+
+.accordion-title {}
 
 .codex-editor__redactor {
     --acc-border-color: #ccc;
@@ -39,8 +42,9 @@
 }
 
 .accordion-settings {
-    margin-left: auto;
-    position: relative;
+    position: absolute;
+    top: 6px;
+    right: 6px;
     width: var(--icon-size, 24px);
     height: var(--icon-size, 24px);
     padding: 6px;
