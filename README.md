@@ -1,6 +1,9 @@
 # Editor.js Accordion Block
 
-A customizable **Accordion block tool** for [Editor.js](https://editorjs.io/) that lets you group and toggle visibility of multiple blocks (headings, paragraphs, tables, images, etc.) under a collapsible title.
+A customizable **Accordion block tool** for [Editor.js](https://editorjs.io/) that lets you group and toggle visibility of multiple blocks (headings, paragraphs, tables, images, etc.) under a collapsible title. All styles are customizable
+
+![example](./assets/example1.gif)
+
 
 ---
 
