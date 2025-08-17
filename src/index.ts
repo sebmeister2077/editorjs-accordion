@@ -204,12 +204,13 @@ export default class Accordion implements BlockTool {
             const popover = document.createElement('div');
             popover.classList.add(this.CSS.settingsPopover);
 
+            const minCountValue = 1
             const countId = `blockCount-${this.block.id}`;
             popover.innerHTML = /*html*/`
                 <div class="${this.CSS.settingsContent}">
                     <div class="${this.CSS.settingsBlockConfig}">
                         <label for="${countId}">${this.api.i18n.t("Block Count")}</label>
-                        <input type="number" id="${countId}" class="${this.api.styles.input}" value="${this.data.settings?.blockCount ?? 1}" min="1" max="${this.config.maxBlockCount}">
+                        <input type="number" id="${countId}" class="${this.api.styles.input}" value="${this.data.settings?.blockCount ?? 1}" min="${minCountValue}" max="${this.config.maxBlockCount}">
                         <button type="button" class="${this.CSS.saveSettings}">${this.api.i18n.t("Save")}</button>
                     </div>
                     <div class="${this.CSS.settingsDelimiter}"></div>
@@ -231,7 +232,7 @@ export default class Accordion implements BlockTool {
 
 
                 saveButton.addEventListener('click', () => {
-                    this.data.settings.blockCount = parseInt(countInput.value)
+                    this.data.settings.blockCount = Math.max(minCountValue, Math.min(parseInt(countInput.value), this.config.maxBlockCount ?? Number.MAX_SAFE_INTEGER))
                     this.block.dispatchChange();
                     popover.remove();
 
