@@ -109,3 +109,10 @@ const editor = new EditorJS({
 | `overrides.settingsIcon`                | `HTMLElement` | Custom element for settings icon.                                             | `undefined` |
 | `disableAnimation`                      | `boolean`     | Disables expand/collapse animations.                                          | `false`     |
 | `maxBlockCount`                         | `number`      | Maximum allowed block count in accordion.                                     | `10`        |
+
+### FAQ
+
+#### Why am I using style overrides written only as CSS strings
+
+Because I rely on plain CSS to style only the necessary blocks, without directly manipulating the DOM. This approach helps minimize unexpected bugs.
+In the future, I plan to add an option to use JavaScript for styling, as it would offer better performance.
