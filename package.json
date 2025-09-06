@@ -1,6 +1,6 @@
 {
     "name": "editorjs-collapsible-block",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Accordion block tune for EditorJS",
     "scripts": {
         "build": "webpack --mode production",

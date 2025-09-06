@@ -21,13 +21,13 @@ A customizable **Accordion block tool** for [Editor.js](https://editorjs.io/) th
 ## Installation
 
 ```bash
-npm install editorjs-accordion-block
+npm install editorjs-collapsible-block
 ```
 
 or via CDN:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/editorjs-accordion-block"></script>
+<script src="https://cdn.jsdelivr.net/npm/editorjs-collapsible-block"></script>
 ```
 
 ## Usage
@@ -36,7 +36,7 @@ or via CDN:
 
 ```js
 import EditorJS from '@editorjs/editorjs';
-import Accordion from 'editorjs-accordion-block';
+import Accordion from 'editorjs-collapsible-block';
 
 const editor = new EditorJS({
   holder: 'editor',
